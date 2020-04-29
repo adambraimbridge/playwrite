@@ -1,0 +1,6 @@
+[dev]
+  functions = "functions"
+
+[build]
+  command = "npm install"
+  functions = "functions"
