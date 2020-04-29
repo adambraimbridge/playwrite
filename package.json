@@ -5,7 +5,8 @@
 	"main": "index.js",
 	"scripts": {
 		"test": "jest",
-		"dev": "clear; netlify dev"
+		"dev": "clear; netlify dev",
+		"dev-remote": "clear; netlify dev & ngrok http 34567 -subdomain=playwrite.eu.ngrok.io"
 	},
 	"repository": {
 		"type": "git",
@@ -29,11 +30,11 @@
 		"eslint-config-prettier": "^6.11.0",
 		"eslint-plugin-prettier": "^3.1.3",
 		"netlify-cli": "^2.48.0",
+		"ngrok": "^3.2.7",
 		"prettier": "^2.0.5"
 	},
 	"dependencies": {
 		"@slack/events-api": "^2.3.2",
-		"axios": "^0.19.2",
-		"querystring": "^0.2.0"
+		"axios": "^0.19.2"
 	}
 }
