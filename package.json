@@ -1,0 +1,26 @@
+{
+  "name": "playwrite",
+  "version": "1.0.0",
+  "description": "A framework for creating message-based games in Slack.",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adambraimbridge/playwrite.git"
+  },
+  "keywords": [
+    "Slack",
+    "slackbot",
+    "game",
+    "text-game",
+    "framework"
+  ],
+  "author": "Adam Braimbridge <adam@braimbridge.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/adambraimbridge/playwrite/issues"
+  },
+  "homepage": "https://github.com/adambraimbridge/playwrite#readme"
+}
