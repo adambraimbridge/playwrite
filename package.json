@@ -6,7 +6,7 @@
 	"scripts": {
 		"test": "jest",
 		"dev": "clear; netlify dev",
-		"dev-remote": "clear; netlify dev & ngrok http 34567 -subdomain=playwrite.eu.ngrok.io"
+		"dev-remote": "clear; ngrok http 34567 -subdomain=playwrite"
 	},
 	"repository": {
 		"type": "git",
@@ -35,6 +35,7 @@
 	},
 	"dependencies": {
 		"@slack/events-api": "^2.3.2",
+		"@slack/web-api": "^5.8.1",
 		"axios": "^0.19.2"
 	}
 }
