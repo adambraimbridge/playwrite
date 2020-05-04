@@ -6,14 +6,15 @@ const slackWebClient = new WebClient(process.env.SLACK_BOT_USER_OAUTH_ACCESS_TOK
  * @param {*} body The body of the request from Slack
  */
 const getPayload = ({ body }) => {
-	const payload = body.payload ? body.payload : body
+	let payload = false
 	try {
-		return JSON.parse(payload)
+		// Slack "Events"
+		payload = JSON.parse(body)
 	} catch (error) {
-		// @todo Catch any errors and trigger an "error" event that the app can subscribe to ..?
-		console.log(error.message)
-		return false
+		// Slack "Interactions"
+		payload = JSON.parse(decodeURIComponent(body).replace('payload=', ''))
 	}
+	return payload
 }
 
 const abslact = (request) => {
@@ -26,8 +27,9 @@ const abslact = (request) => {
 	}
 
 	const invokeCallbacks = async ({ event, hooks }) => {
+		const type = event && event.type ? event.type : payload.type
 		hooks
-			.filter((hook) => hook.type === event.type)
+			.filter((hook) => hook.type === type)
 			.forEach((hook) => {
 				hook.callback()
 			})
@@ -41,7 +43,7 @@ const abslact = (request) => {
 	const run = async () => {
 		const { event } = payload
 		const results = await invokeCallbacks({ event, hooks })
-		console.log({ results })
+		// console.log({ results })
 	}
 
 	return {

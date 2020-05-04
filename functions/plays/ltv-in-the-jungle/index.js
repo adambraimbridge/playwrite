@@ -1,177 +1,110 @@
-const view = {
-	blocks: [
-		{
-			type: 'section',
-			fields: [
-				{
-					type: 'mrkdwn',
-					text: '*Top Players*\n<fakelink.toUrl.com|Winston Churchill>\n<fakelink.toUrl.com|Nicole Kidman>\n<fakelink.toUrl.com|Phar Lap>',
+const cast = [
+	{
+		username: 'nn',
+		fullname: 'Natalie Narrator',
+	},
+	{
+		username: 'ee',
+		fullname: 'Ellie Elephant',
+	},
+	{
+		username: 'tt',
+		fullname: 'Tyrone Tortoise',
+	},
+	{
+		username: 'vv',
+		fullname: 'Vicky Vole',
+	},
+]
+
+const transcript = new Map([
+	{
+		type: 'message',
+		from: 'nn',
+		text: 'Welcome. You find yourself starting work for Friendly Team ™, or FT for short. You’re exclusively in charge of managing a portfolio of clients, who pay a subscription to access our content online.',
+	},
+	{
+		type: 'message',
+		from: 'nn',
+		text: 'Your day begins with a startling missive from your boss, Ellie Elephant ...',
+	},
+	{
+		type: 'message',
+		from: 'ee',
+		text: '[name], if I’ve told you once I’ve told you a thousand times. An elephant never forgets and I distinctly remember telling you.',
+	},
+	{
+		type: 'message',
+		from: 'ee',
+		text: 'I’m going to check in on you later on. You’d better have a plan to increase average LTV of your portfolio. This is your last warning. If I’m not satisfied with your progress it will go on your Permanent Record. ',
+	},
+	{
+		type: 'message',
+		from: 'nn',
+		text: 'After reading this you feel your blood pressure rising and sweat starts to moisten your brow. You’ve never heard of LTV. What could it possibly mean? ',
+	},
+	{
+		type: 'choice',
+		options: [
+			{
+				correct: false,
+				label: 'Limited Term Variable',
+				response: {
+					from: 'nn',
+					text: 'No, that can’t be right.',
 				},
-				{
-					type: 'mrkdwn',
-					text: '*Top Plays*\n<fakelink.toUrl.com|LTV in the Jungle>\n<fakelink.toUrl.com|Journalist or Pugalist?>\n<fakelink.toUrl.com|Match the Headline>',
-				},
-			],
-		},
-		{
-			type: 'context',
-			elements: [
-				{
-					type: 'image',
-					image_url: 'https://api.slack.com/img/blocks/bkb_template_images/placeholder.png',
-					alt_text: 'placeholder',
-				},
-			],
-		},
-		{
-			type: 'section',
-			text: {
-				type: 'mrkdwn',
-				text: '*Now Showing*',
 			},
-			accessory: {
-				type: 'overflow',
-				options: [
-					{
-						text: {
-							type: 'plain_text',
-							text: 'Newest',
-							emoji: true,
-						},
-						value: 'value-0',
-					},
-					{
-						text: {
-							type: 'plain_text',
-							text: 'Most popular',
-							emoji: true,
-						},
-						value: 'value-1',
-					},
-					{
-						text: {
-							type: 'plain_text',
-							text: 'Trending',
-							emoji: true,
-						},
-						value: 'value-2',
-					},
-				],
+			{
+				correct: false,
+				label: 'Large Table Viscosity',
+				response: {
+					from: 'nn',
+					text: 'No. What would that even mean?.',
+				},
 			},
-		},
-		{
-			type: 'divider',
-		},
-		{
-			type: 'section',
-			text: {
-				type: 'mrkdwn',
-				text: '*LTV in the Jungle* :star: :star: :star: :star:',
+			{
+				correct: false,
+				label: 'Lifetime Value',
+				response: {
+					from: 'nn',
+					text: 'Ah yes, of course.',
+				},
 			},
-		},
-		{
-			type: 'context',
-			elements: [
-				{
-					type: 'image',
-					image_url: 'https://api.slack.com/img/blocks/bkb_template_images/profile_3.png',
-					alt_text: 'Dwight Schrute',
-				},
-				{
-					type: 'mrkdwn',
-					text: '*Dwight Schrute*',
-				},
-			],
-		},
-		{
-			type: 'section',
-			text: {
-				type: 'mrkdwn',
-				text: 'A fast-paced action adventure pitting you agains the wild.',
-			},
-		},
-		{
-			type: 'actions',
-			elements: [
-				{
-					type: 'button',
-					text: {
-						type: 'plain_text',
-						text: 'Play',
-						emoji: true,
-					},
-					style: 'primary',
-					value: 'approve',
-				},
-				{
-					type: 'button',
-					text: {
-						type: 'plain_text',
-						text: 'View Details',
-						emoji: true,
-					},
-					value: 'details',
-				},
-			],
-		},
-		{
-			type: 'divider',
-		},
-		{
-			type: 'section',
-			text: {
-				type: 'mrkdwn',
-				text: '*Journalist or Pugalist?* :star: :star: :star:',
-			},
-		},
-		{
-			type: 'context',
-			elements: [
-				{
-					type: 'image',
-					image_url: 'https://api.slack.com/img/blocks/bkb_template_images/profile_2.png',
-					alt_text: 'Pam Beasely',
-				},
-				{
-					type: 'mrkdwn',
-					text: '*Pam Beasely*',
-				},
-			],
-		},
-		{
-			type: 'section',
-			text: {
-				type: 'mrkdwn',
-				text: 'A fast-paced action adventure pitting you against the wild.',
-			},
-		},
-		{
-			type: 'actions',
-			elements: [
-				{
-					type: 'button',
-					text: {
-						type: 'plain_text',
-						text: 'Play',
-						emoji: true,
-					},
-					style: 'primary',
-					value: 'approve',
-				},
-				{
-					type: 'button',
-					text: {
-						type: 'plain_text',
-						text: 'View Details',
-						emoji: true,
-					},
-					value: 'details',
-				},
-			],
-		},
-	],
-}
+		],
+	},
+	{
+		type: 'message',
+		from: 'nn',
+		text: 'But why would Ellie want you to make a plan to increase LTV? And how would you even start? What changes can you make? You reach for bottle of vodka under your desk ...',
+	},
+	{
+		type: 'message',
+		from: 'nn',
+		text: 'Suddenly you remember that your colleague, Vicky Vole, is usually first to figure out this kind of thing. So you send them a message asking for help.',
+	},
+	{
+		type: 'message',
+		from: 'player',
+		text: 'Hey @vicky.vole. What’s up with LTV?',
+	},
+	{
+		type: 'message',
+		from: 'vv',
+		text: 'New phone. Who dis?',
+	},
+	{
+		type: 'message',
+		from: 'player',
+		text: 'LOL PLZ HLP',
+	},
+	{
+		type: 'message',
+		from: 'player',
+		text: 'I need to do a plan for LTV. ',
+	},
+])
 
 module.exports = {
-	view,
+	cast,
+	transcript,
 }
