@@ -74,67 +74,12 @@ const view = {
 			elements: [
 				{
 					type: 'image',
-					image_url: 'https://api.slack.com/img/blocks/bkb_template_images/profile_3.png',
-					alt_text: 'Dwight Schrute',
-				},
-				{
-					type: 'mrkdwn',
-					text: '*Dwight Schrute*',
-				},
-			],
-		},
-		{
-			type: 'section',
-			text: {
-				type: 'mrkdwn',
-				text: 'A fast-paced action adventure pitting you agains the wild.',
-			},
-		},
-		{
-			type: 'actions',
-			elements: [
-				{
-					type: 'button',
-					text: {
-						type: 'plain_text',
-						text: 'Play',
-						emoji: true,
-					},
-					style: 'primary',
-					value: 'approve',
-				},
-				{
-					type: 'button',
-					text: {
-						type: 'plain_text',
-						text: 'View Details',
-						emoji: true,
-					},
-					value: 'details',
-				},
-			],
-		},
-		{
-			type: 'divider',
-		},
-		{
-			type: 'section',
-			text: {
-				type: 'mrkdwn',
-				text: '*Journalist or Pugalist?* :star: :star: :star:',
-			},
-		},
-		{
-			type: 'context',
-			elements: [
-				{
-					type: 'image',
 					image_url: 'https://api.slack.com/img/blocks/bkb_template_images/profile_2.png',
-					alt_text: 'Pam Beasely',
+					alt_text: 'Angela Sjoholm',
 				},
 				{
 					type: 'mrkdwn',
-					text: '*Pam Beasely*',
+					text: '*Angela Sjoholm*',
 				},
 			],
 		},
@@ -156,7 +101,7 @@ const view = {
 						emoji: true,
 					},
 					style: 'primary',
-					value: 'approve',
+					value: 'ltv-in-the-jungle',
 				},
 				{
 					type: 'button',
@@ -165,7 +110,62 @@ const view = {
 						text: 'View Details',
 						emoji: true,
 					},
-					value: 'details',
+					value: 'ltv-in-the-jungle-details',
+				},
+			],
+		},
+		{
+			type: 'divider',
+		},
+		{
+			type: 'section',
+			text: {
+				type: 'mrkdwn',
+				text: '*Journalist or Pugalist?* :star: :star: :star:',
+			},
+		},
+		{
+			type: 'context',
+			elements: [
+				{
+					type: 'image',
+					image_url: 'https://api.slack.com/img/blocks/bkb_template_images/profile_3.png',
+					alt_text: 'Kiya Gurmesa',
+				},
+				{
+					type: 'mrkdwn',
+					text: '*Kiya Gurmesa*',
+				},
+			],
+		},
+		{
+			type: 'section',
+			text: {
+				type: 'mrkdwn',
+				text: `Writer or fighter — can you tell who's who?`,
+			},
+		},
+		{
+			type: 'actions',
+			elements: [
+				{
+					type: 'button',
+					text: {
+						type: 'plain_text',
+						text: 'Play',
+						emoji: true,
+					},
+					style: 'primary',
+					value: 'journalist-or-pugalist',
+				},
+				{
+					type: 'button',
+					text: {
+						type: 'plain_text',
+						text: 'View Details',
+						emoji: true,
+					},
+					value: 'journalist-or-pugalist-details',
 				},
 			],
 		},

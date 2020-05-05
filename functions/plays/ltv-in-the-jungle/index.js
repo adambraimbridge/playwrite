@@ -104,7 +104,38 @@ const transcript = new Map([
 	},
 ])
 
+const view = {
+	type: 'modal',
+	title: {
+		type: 'plain_text',
+		text: 'LTV in the Jungle',
+		emoji: true,
+	},
+	submit: {
+		type: 'plain_text',
+		text: 'Continue',
+		emoji: true,
+	},
+	close: {
+		type: 'plain_text',
+		text: 'Close',
+		emoji: true,
+	},
+	blocks: [
+		{
+			type: 'context',
+			elements: [
+				{
+					type: 'mrkdwn',
+					text: `*It's early morning. You find yourself at your normal job, working for Friendly Team™.* \n\nYou’re in charge of managing a portfolio of clients who pay subscription fees to access FT content.`,
+				},
+			],
+		},
+	],
+}
+
 module.exports = {
 	cast,
 	transcript,
+	view,
 }

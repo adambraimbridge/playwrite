@@ -1,6 +1,7 @@
 // abslackt === "[A]dam + [B]raimbridge + "[Slack] + abstrac[t]"
 const abslackt = require('./lib/@adambraimbridge/abslackt')
 const homepage = require('./plays/homepage')
+const { view } = require('./plays/ltv-in-the-jungle')
 
 const setupSlackWebhooks = (slack) => {
 	slack.on('error', () => {
@@ -12,6 +13,25 @@ const setupSlackWebhooks = (slack) => {
 		const { view } = homepage
 		view.type = tab
 		const response = await slack.publish({ user_id: user, view })
+		return response
+	})
+
+	slack.on('block_actions', async () => {
+		const callback_id = slack.payload.actions[0].value
+		const { trigger_id } = slack.payload
+		const title =
+			callback_id === 'ltv-in-the-jungle' //
+				? 'LTV in the Jungle'
+				: callback_id === 'journalist-or-pugalist'
+				? 'Journalist or Pugalist?'
+				: 'Details'
+
+		const slackModal = await slack.spawnModal({ trigger_id, callback_id, title })
+		const { id: view_id } = slackModal.view
+
+		view.callback_id = callback_id
+		const response = await slack.updateModal({ view_id, view })
+
 		return response
 	})
 }
