@@ -4,4 +4,3 @@
 
 A framework for creating message-based games in Slack.
 
-See: https://slack.dev/bolt/tutorial/getting-started
