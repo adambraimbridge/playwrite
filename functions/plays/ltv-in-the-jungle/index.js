@@ -17,31 +17,32 @@ const cast = [
 	},
 ]
 
-const transcript = new Map([
+// Act one ends with a choice from the narrator
+const actOne = new Map([
 	{
 		type: 'message',
 		from: 'nn',
-		text: 'Welcome. You find yourself starting work for Friendly Team ™, or FT for short. You’re exclusively in charge of managing a portfolio of clients, who pay a subscription to access our content online.',
+		text: `Welcome. You find yourself starting work for Friendly Team ™, or FT for short. You’re exclusively in charge of managing a portfolio of clients, who pay a subscription to access our content online.`,
 	},
 	{
 		type: 'message',
 		from: 'nn',
-		text: 'Your day begins with a startling missive from your boss, Ellie Elephant ...',
+		text: `Your day begins with a startling missive from your boss, Ellie Elephant ...`,
 	},
 	{
 		type: 'message',
 		from: 'ee',
-		text: '[name], if I’ve told you once I’ve told you a thousand times. An elephant never forgets and I distinctly remember telling you.',
+		text: `[name], if I’ve told you once I’ve told you a thousand times. An elephant never forgets and I distinctly remember telling you.`,
 	},
 	{
 		type: 'message',
 		from: 'ee',
-		text: 'I’m going to check in on you later on. You’d better have a plan to increase average LTV of your portfolio. This is your last warning. If I’m not satisfied with your progress it will go on your Permanent Record. ',
+		text: `I’m going to check in on you later on. You’d better have a plan to increase average LTV of your portfolio. This is your last warning. If I’m not satisfied with your progress it will go on your Permanent Record. `,
 	},
 	{
 		type: 'message',
 		from: 'nn',
-		text: 'After reading this you feel your blood pressure rising and sweat starts to moisten your brow. You’ve never heard of LTV. What could it possibly mean? ',
+		text: `After reading this you feel your blood pressure rising and sweat starts to moisten your brow. You’ve never heard of LTV. What could it possibly mean? `,
 	},
 	{
 		type: 'choice',
@@ -51,7 +52,7 @@ const transcript = new Map([
 				label: 'Limited Term Variable',
 				response: {
 					from: 'nn',
-					text: 'No, that can’t be right.',
+					text: `No, that can’t be right. Try again.`,
 				},
 			},
 			{
@@ -59,83 +60,91 @@ const transcript = new Map([
 				label: 'Large Table Viscosity',
 				response: {
 					from: 'nn',
-					text: 'No. What would that even mean?.',
+					text: `No. That's not even a thing.`,
 				},
 			},
 			{
-				correct: false,
+				correct: true,
 				label: 'Lifetime Value',
 				response: {
 					from: 'nn',
-					text: 'Ah yes, of course.',
+					text: `Ah yes, of course. Well done.`,
 				},
 			},
 		],
 	},
+])
+
+// Act two ends in a choice from Vicky Vole
+const actTwo = new Map([
 	{
 		type: 'message',
 		from: 'nn',
-		text: 'But why would Ellie want you to make a plan to increase LTV? And how would you even start? What changes can you make? You reach for bottle of vodka under your desk ...',
+		text: `But why would Ellie want you to make a plan to increase LTV? And how would you even start? What changes can you make? You reach for bottle of vodka under your desk ...`,
 	},
 	{
 		type: 'message',
 		from: 'nn',
-		text: 'Suddenly you remember that your colleague, Vicky Vole, is usually first to figure out this kind of thing. So you send them a message asking for help.',
+		text: `Suddenly you remember that your colleague, Vicky Vole, is usually first to figure out this kind of thing. So you send them a message asking for help.`,
 	},
 	{
 		type: 'message',
 		from: 'player',
-		text: 'Hey @vicky.vole. What’s up with LTV?',
+		text: `Hey @vicky.vole. What’s up with LTV?`,
 	},
 	{
 		type: 'message',
 		from: 'vv',
-		text: 'New phone. Who dis?',
+		text: `New phone. Who dis?`,
 	},
 	{
 		type: 'message',
 		from: 'player',
-		text: 'LOL PLZ HLP',
+		text: `:grin: LOL PLZ HLP`,
 	},
 	{
 		type: 'message',
 		from: 'player',
-		text: 'I need to do a plan for LTV. ',
+		text: `I need to do a plan for LTV. `,
+	},
+	{
+		type: 'message',
+		from: 'nn',
+		text: `To be continued ...`,
 	},
 ])
 
-const view = {
-	type: 'modal',
-	title: {
-		type: 'plain_text',
-		text: 'LTV in the Jungle',
-		emoji: true,
+// Act three ends in a choice from Tyrone Tortoise
+const actThree = new Map([
+	{
+		type: 'message',
+		from: 'nn',
+		text: `Something something act three`,
 	},
-	submit: {
-		type: 'plain_text',
-		text: 'Continue',
-		emoji: true,
+])
+
+// Act four ends with submitting a LTV plan to Ellie E
+const actFour = new Map([
+	{
+		type: 'message',
+		from: 'nn',
+		text: `Something something act four`,
 	},
-	close: {
-		type: 'plain_text',
-		text: 'Close',
-		emoji: true,
-	},
-	blocks: [
-		{
-			type: 'context',
-			elements: [
-				{
-					type: 'mrkdwn',
-					text: `*It's early morning. You find yourself at your normal job, working for Friendly Team™.* \n\nYou’re in charge of managing a portfolio of clients who pay subscription fees to access FT content.`,
-				},
-			],
-		},
-	],
-}
+])
+
+const finale = {}
+// Either the narrator tells you how you went,
+// or there's some other way to let you know the effect of your LTV choices
+
+// Todo: Show progress to the player
+const transcript = new Map([
+	actOne, //
+	actTwo,
+	actThree,
+	actFour,
+	finale,
+])
 
 module.exports = {
-	cast,
 	transcript,
-	view,
 }

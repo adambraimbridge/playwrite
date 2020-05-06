@@ -32,8 +32,6 @@ const spawnModal = async ({ trigger_id, callback_id, title }) => {
 }
 
 const updateModal = async ({ view_id, view }) => {
-	console.log({ view_id, view })
-
 	const response = await slackWebClient.views //
 		.update({ view_id, view })
 		.catch(console.error)
