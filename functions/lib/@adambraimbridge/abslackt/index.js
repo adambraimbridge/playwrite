@@ -1,9 +1,13 @@
+/**
+ * abslackt == "[A]dam + [B]raimbridge + "[Slack] + abstrac[t]"
+ */
 const { WebClient } = require('@slack/web-api')
 const slackWebClient = new WebClient(process.env.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN)
 const { spawnModal, updateModal } = require('./slack-modal')
 
 /**
- * Payload is different depending on what Slack sends.
+ * The payload is different depending on what Slack sends.
+ * This function normalises the payload from a string to a json object.
  * @param {*} body The body of the request from Slack
  */
 const getPayload = ({ body }) => {
@@ -27,6 +31,7 @@ const abslact = (request) => {
 		slackWebClient.views.publish({ user_id, view })
 	}
 
+	// Process any callbacks that have been queued
 	const invokeCallbacks = async ({ event, hooks }) => {
 		const type = event && event.type ? event.type : payload.type
 		hooks
@@ -36,15 +41,17 @@ const abslact = (request) => {
 			})
 	}
 
+	// Queue a callback for a Slack event type
 	const on = (type, callback) => {
 		// @todo Add a guardian for callback types.
 		hooks.push({ type, callback })
 	}
 
+	// Primary controller for a Slack request
 	const run = async () => {
 		const { event } = payload
 		const results = await invokeCallbacks({ event, hooks })
-		console.log({ results })
+		// console.log({ results })
 	}
 
 	return {
