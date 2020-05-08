@@ -132,13 +132,7 @@ const actFour = [
 	},
 ]
 
-const finale = [
-	{
-		type: 'message',
-		from: 'nn',
-		text: `Something something finale ...`,
-	},
-]
+const finale = {}
 // Either the narrator tells you how you went,
 // or there's some other way to let you know the effect of your LTV choices
 
@@ -152,14 +146,14 @@ const transcript = [].concat(
 )
 
 const play = {
-	id: 'ltv-in-the-jungle',
-	title: 'LTV in the Jungle',
+	id: 'journalist-or-pugilist',
+	title: 'Journalist or Pugilist?',
 	author: {
-		name: 'Angela Sjoholm',
-		image_url: 'https://api.slack.com/img/blocks/bkb_template_images/profile_2.png',
+		name: 'Kiya Gurmesa',
+		image_url: 'https://api.slack.com/img/blocks/bkb_template_images/profile_3.png',
 	},
-	description: 'A fast-paced action adventure pitting you against the wild.',
-	score: ':star: :star: :star: :star:',
+	description: `Writer or fighter — can you tell who's who?`,
+	score: ':star: :star: :star:',
 	transcript,
 }
 

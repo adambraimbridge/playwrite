@@ -1,26 +1,9 @@
 const plays = [
-	{
-		id: 'ltv-in-the-jungle',
-		title: 'LTV in the Jungle',
-		author: {
-			name: 'Angela Sjoholm',
-			image_url: 'https://api.slack.com/img/blocks/bkb_template_images/profile_2.png',
-		},
-		description: 'A fast-paced action adventure pitting you against the wild.',
-		score: ':star: :star: :star: :star:',
-	},
-	{
-		id: 'journalist-or-pugilist',
-		title: 'Journalist or Pugilist?',
-		author: {
-			name: 'Kiya Gurmesa',
-			image_url: 'https://api.slack.com/img/blocks/bkb_template_images/profile_3.png',
-		},
-		description: `Writer or fighter — can you tell who's who?`,
-		score: ':star: :star: :star:',
-	},
+	require('./ltv-in-the-jungle'), //
+	require('./journalist-or-pugilist'),
 ]
 
+// Generate the Slack markup to show the plays on the app homepage.
 const playBlocks = plays.reduce((accumulator, { id, title, author, description, score }) => {
 	return accumulator.concat([
 		{
@@ -146,5 +129,6 @@ const homepage = {
 }
 
 module.exports = {
+	plays,
 	homepage,
 }

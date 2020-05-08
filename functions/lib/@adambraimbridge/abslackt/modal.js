@@ -1,7 +1,7 @@
 const { WebClient } = require('@slack/web-api')
 const slackWebClient = new WebClient(process.env.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN)
 
-const getModalJson = ({ trigger_id, callback_id, title }) => ({
+const getBlankModalJson = ({ trigger_id, callback_id, title }) => ({
 	trigger_id,
 	view: {
 		callback_id,
@@ -25,7 +25,7 @@ const getModalJson = ({ trigger_id, callback_id, title }) => ({
 
 const spawnModal = async ({ trigger_id, callback_id, title }) => {
 	const response = await slackWebClient.views //
-		.open(getModalJson({ trigger_id, callback_id, title }))
+		.open(getBlankModalJson({ trigger_id, callback_id, title }))
 		.catch(console.error)
 
 	return response

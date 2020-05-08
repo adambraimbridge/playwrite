@@ -1,45 +1,36 @@
-const plays = require('../../plays')
+const { plays } = require('../../plays')
 
-const getNextView = ({ act = 'actOne', line = 1 }) => {
-	const lines = [act]
-	const currentline = lines[Symbol.iterator]()
+const deliver = async ({ slack, modal, line }) => {
+	const {
+		id: view_id, //
+		type,
+		callback_id,
+		title,
+		blocks,
+		state,
+	} = modal
 
-	console.log('currentline')
-	console.log({ ...currentline })
+	state.currentLine = state.currentLine || 0
+	state.currentLine++
 
-	console.log(currentline.next().value)
-	console.log(currentline.next().value)
-	console.log(currentline.next().value)
-
-	return {
-		type: 'modal',
-		title: {
-			type: 'plain_text',
-			text: `LTV in the Jungle`,
-			emoji: true,
+	const { text } = line
+	blocks.push({
+		type: 'section',
+		text: {
+			type: 'mrkdwn',
+			text,
 		},
-		submit: {
-			type: 'plain_text',
-			text: `Continue`,
-			emoji: true,
-		},
-		close: {
-			type: 'plain_text',
-			text: `Close`,
-			emoji: true,
-		},
-		blocks: [
-			{
-				type: 'context',
-				elements: [
-					{
-						type: 'mrkdwn',
-						text: `*It's early morning. You find yourself at your normal job, working for Friendly Team™.* \n\nYou’re in charge of managing a portfolio of clients who pay subscription fees to access FT content.`,
-					},
-				],
-			},
-		],
+	})
+	console.log({ blocks })
+
+	const view = {
+		title,
+		blocks,
+		type,
+		callback_id,
 	}
+
+	const response = await slack.updateModal({ view_id, view })
 }
 
 const setupSlackWebhooks = (slack) => {
@@ -51,32 +42,35 @@ const setupSlackWebhooks = (slack) => {
 	// User clicked the app home page
 	slack.on('app_home_opened', async () => {
 		const { user, tab } = slack.payload.event
-		const { homepage: view } = plays
-		view.type = tab
-		const response = await slack.publish({ user_id: user, view })
+		const { homepage } = plays
+		homepage.type = tab
+		const response = await slack.publish({ user_id: user, view: homepage })
 		return response
 	})
 
 	// User clicked a button inside a block
 	slack.on('block_actions', async () => {
 		const callback_id = slack.payload.actions[0].value
-		const { trigger_id } = slack.payload
-		const title =
-			callback_id === 'ltv-in-the-jungle' //
-				? 'LTV in the Jungle'
-				: callback_id === 'journalist-or-pugalist'
-				? 'Journalist or Pugalist?'
-				: 'Details'
+		const nowShowing = plays.find((play) => play.id === callback_id)
+		const { title, transcript } = nowShowing
+		console.debug(`Now showing: ${title}`)
 
-		const slackModal = await slack.spawnModal({ trigger_id, callback_id, title })
-		const { id: view_id } = slackModal.view
+		const { trigger_id, state } = slack.payload
+		const { view: modal } = await slack.spawnModal({ trigger_id, callback_id, title })
 
-		// Play the lines from the first act
-		play(actOne)
-		view.callback_id = callback_id
-		const response = await slack.updateModal({ view_id, view })
+		for (let line of transcript) {
+			const { type } = line
+			if (type === 'message') {
+				const response = await deliver({ slack, modal, line })
+			} else {
+				// break
+			}
+		}
 
-		return response
+		// view.callback_id = callback_id
+		// const response = await slack.updateModal({ view_id, view })
+
+		// return response
 	})
 
 	// // User clicked a button at the bottom of a modal
@@ -90,14 +84,14 @@ const setupSlackWebhooks = (slack) => {
 	// })
 }
 
-const places = (slack) => {
-	console.log('director')
-	console.log(slack.payload)
+const raiseCurtains = (slack) => {
+	console.log('Raise curtains!')
+	// console.log(slack.payload)
 	setupSlackWebhooks(slack)
 }
 
 const director = {
-	places,
+	raiseCurtains,
 }
 
 module.exports = director

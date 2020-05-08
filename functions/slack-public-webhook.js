@@ -24,7 +24,7 @@ exports.handler = (request) => {
 			response.body = challenge
 		} else {
 			// Do not await a response.
-			director.places(slack)
+			director.raiseCurtains(slack)
 			slack.run()
 		}
 	} catch (error) {
