@@ -4,11 +4,15 @@ const slackWebClient = new WebClient(process.env.SLACK_BOT_USER_OAUTH_ACCESS_TOK
 // @see https://api.slack.com/methods/conversations.open
 // @see https://api.slack.com/methods/chat.scheduleMessage
 const sendMessages = async ({ cast, messages }) => {
-	// console.debug(`🐶 Sending messages.`)
+	console.debug(`🦄 Sending messages.`)
 
 	const { player } = cast
 	const { channel } = await slackWebClient.conversations //
-		.open({ users: player.id })
+		.create({
+			name: 'Monday',
+			is_private: true,
+			users: player.id,
+		})
 		.catch(console.error)
 
 	// Post the first message now, and

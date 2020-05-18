@@ -47,7 +47,6 @@ const deliverModals = ({ payload, progress }) => {
 	}
 
 	const { type: nextLineType } = transcript[nextLine]
-	// console.debug(`🦄 Next line is a ${nextLineType}.`)
 
 	const element = {
 		type: 'button',
@@ -71,13 +70,6 @@ const deliverModals = ({ payload, progress }) => {
 		block_id: playId,
 		elements: [element],
 	})
-
-	// Object.assign(applicationState, {
-	// 	[playId]: {
-	// 		currentLine: nextLine,
-	// 	},
-	// })
-	// view.private_metadata = JSON.stringify(applicationState)
 
 	if (action === 'play') {
 		console.debug(`🦄 Spawning a new modal. (Action: ${action})`)
