@@ -1,93 +1,213 @@
-const { plays } = require('../../plays')
+const { plays, homepage } = require('../../plays')
 
-const deliver = async ({ slack, modal, line }) => {
-	const {
-		id: view_id, //
-		type,
-		callback_id,
-		title,
-		blocks,
-		state,
-	} = modal
-
-	state.currentLine = state.currentLine || 0
-	state.currentLine++
-
-	const { text } = line
-	blocks.push({
-		type: 'section',
-		text: {
-			type: 'mrkdwn',
-			text,
-		},
-	})
-	console.log({ blocks })
-
-	const view = {
-		title,
-		blocks,
-		type,
-		callback_id,
+// Load application state from the `private_metadata` property.
+const loadApplicationState = ({ slack }) => {
+	const { view } = slack.payload.event ? slack.payload.event : slack.payload
+	if (!view) {
+		console.warn('🐶 Could not load view.')
+		return false
 	}
 
-	const response = await slack.updateModal({ view_id, view })
+	const { private_metadata } = view
+	if (!private_metadata) {
+		console.warn('🐶 Could not load applicationState.')
+		return false
+	}
+
+	let applicationState = {}
+	try {
+		applicationState = JSON.parse(private_metadata)
+	} catch (error) {
+		console.warn(error.message)
+	}
+	slack.applicationState = applicationState
 }
 
-const setupSlackWebhooks = (slack) => {
-	// @todo: Capture errors for nicer UX
-	slack.on('error', () => {
-		console.log(`Slack error 01: ${error.message}`)
+const setUpSlackWebhooks = ({ slack }) => {
+	// User clicked the app homepage.
+	slack.on('app_home_opened', () => {
+		updateHomepage({ slack })
 	})
 
-	// User clicked the app home page
-	slack.on('app_home_opened', async () => {
-		const { user, tab } = slack.payload.event
-		const { homepage } = plays
-		homepage.type = tab
-		const response = await slack.publish({ user_id: user, view: homepage })
-		return response
-	})
+	// User clicked a button inside a block:
+	// Either from the application homepage or an active modal.
+	// This should trigger the first (or the most recent) modal.
+	slack.on('block_actions', () => {
+		console.debug('🦄 Event: block_actions.')
+		const { applicationState, payload } = slack
 
-	// User clicked a button inside a block
-	slack.on('block_actions', async () => {
-		const callback_id = slack.payload.actions[0].value
-		const nowShowing = plays.find((play) => play.id === callback_id)
-		const { title, transcript } = nowShowing
-		console.debug(`Now showing: ${title}`)
+		const { action_id: action, block_id: playId, value } = payload.actions[0]
+		const currentLine = parseInt(value)
 
-		const { trigger_id, state } = slack.payload
-		const { view: modal } = await slack.spawnModal({ trigger_id, callback_id, title })
+		const nowShowing = plays.find((play) => play.id === playId)
+		if (!nowShowing) {
+			console.warn(`🐶 Play not found for "${playId}".`)
+			return false
+		}
+		const { title, transcript, cast } = nowShowing
+		console.debug(`🦄 Now showing: ${title}`)
 
-		for (let line of transcript) {
-			const { type } = line
-			if (type === 'message') {
-				const response = await deliver({ slack, modal, line })
-			} else {
-				// break
-			}
+		// const currentLine = (applicationState[playId] && applicationState[playId].currentLine) || 0
+		const { text, type } = transcript[currentLine]
+		// console.debug(`🦄 Line ${currentLine} (${type}): ${text}`)
+
+		const nextLine = currentLine + 1
+		if (!transcript[nextLine]) {
+			console.warn('🐶 Next line not found.')
 		}
 
-		// view.callback_id = callback_id
-		// const response = await slack.updateModal({ view_id, view })
+		slack.progress = {
+			action,
+			playId,
+			title,
+			transcript,
+			cast,
+			text,
+			currentLine,
+			nextLine,
+		}
 
-		// return response
+		if (type === 'modal') {
+			// console.debug(`🦄 Calling deliverModals()`)
+			deliverModals({ slack })
+		} else {
+			// console.debug(`🦄 Calling deliverMessages()`)
+			deliverMessages({ slack })
+		}
 	})
 
-	// // User clicked a button at the bottom of a modal
-	// slack.on('view_submission', async () => {
-	// 	const { id: view_id, callback_id } = slack.payload.view
+	// User clicked a "Okay" button at the bottom of a modal.
+	// This should close the modal and queue the next messages.
+	slack.on('view_submission', () => {
+		// console.debug('🦄 Event: view_submission.')
+		// console.debug({ ...slack.payload.view })
+	})
+}
 
-	// 	view.callback_id = callback_id
-	// 	const response = await slack.updateModal({ view_id, view })
+const updateHomepage = async ({ slack }) => {
+	// console.debug('🦄 updating homepage')
+	// console.debug(`🦄 homepage application state:`)
+	// console.debug({ ...slack.applicationState })
 
-	// 	return response
+	const { user, view, tab } = slack.payload.event || slack.payload
+
+	if (tab !== 'home') {
+		console.warn(`🐶 Toto, I've a feeling we're not in Kansas anymore. Tab: ${tab}`)
+		return false
+	}
+
+	const { title } = view
+	const { blocks } = homepage
+
+	await slack.publish({
+		user_id: user.id || user,
+		view: {
+			type: 'home',
+			title,
+			blocks,
+			private_metadata: JSON.stringify(slack.applicationState),
+		},
+	})
+}
+
+const deliverModals = ({ slack }) => {
+	const { progress, payload } = slack
+	const { action, playId, title, transcript, text, nextLine } = progress
+	const { trigger_id } = payload
+	const view_id = payload.view.id
+
+	const view = {
+		callback_id: playId,
+		type: 'modal',
+		title: {
+			type: 'plain_text',
+			text: title,
+			emoji: true,
+		},
+		blocks: [
+			{
+				type: 'section',
+				text: {
+					type: 'mrkdwn',
+					text,
+				},
+			},
+		],
+	}
+
+	const { type: nextLineType } = transcript[nextLine]
+	// console.debug(`🦄 Next line is a ${nextLineType}.`)
+
+	const element = {
+		type: 'button',
+		text: {
+			type: 'plain_text',
+			text: nextLineType === 'message' ? `Cool. I'll check my messages` : 'Continue',
+		},
+		style: nextLineType === 'message' ? 'danger' : 'primary',
+		value: `${nextLine}`,
+		action_id: nextLineType === 'message' ? 'check-messages' : 'continue',
+	}
+
+	if (nextLineType === 'message') {
+		const { team, api_app_id: appId } = payload
+		const { id: teamId } = team
+		element.url = `slack://app?team=${teamId}&id=${appId}&tab=messages`
+	}
+
+	const block = {
+		type: 'actions',
+		block_id: playId,
+		elements: [element],
+	}
+
+	view.blocks.push(block)
+
+	// Object.assign(applicationState, {
+	// 	[playId]: {
+	// 		currentLine: nextLine,
+	// 	},
 	// })
+	// view.private_metadata = JSON.stringify(applicationState)
+
+	if (action === 'play') {
+		// console.debug(`🦄 Spawning a new modal. (Action: ${action})`)
+		slack.spawnModal({
+			trigger_id,
+			view,
+		})
+	} else {
+		// console.debug(`🦄 Updating an existing modal. (Action: ${action})`)
+		slack.updateModal({
+			view_id,
+			view,
+		})
+	}
+
+	// updateHomepage({ slack })
+}
+
+const deliverMessages = async ({ slack }) => {
+	const { currentLine, transcript, cast } = slack.progress
+	cast.player = slack.payload.user
+
+	// Get the list of messages from currentLine to the next non-message line.
+	const firstPass = transcript.slice(currentLine, transcript.length) //
+	const messageCount = firstPass.findIndex((line) => line.type !== 'message')
+	const messages = firstPass.slice(0, messageCount)
+
+	const enrichedMessages = messages.map((message) => {
+		// @todo: do any template string substitutions, e.g. {{player}}
+		return message
+	})
+
+	slack.sendMessages({ cast, messages: enrichedMessages })
 }
 
 const raiseCurtains = (slack) => {
-	console.log('Raise curtains!')
-	// console.log(slack.payload)
-	setupSlackWebhooks(slack)
+	// loadApplicationState({ slack })
+	setUpSlackWebhooks({ slack })
+	slack.run()
 }
 
 const director = {

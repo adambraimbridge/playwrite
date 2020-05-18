@@ -39,7 +39,18 @@ const playBlocks = plays.reduce((accumulator, { id, title, author, description, 
 		},
 		{
 			type: 'actions',
+			block_id: `${id}`,
 			elements: [
+				// {
+				// 	type: 'button',
+				// 	text: {
+				// 		type: 'plain_text',
+				// 		text: 'Details',
+				// 		emoji: true,
+				// 	},
+				// 	value: id,
+				// 	action_id: `details`,
+				// },
 				{
 					type: 'button',
 					text: {
@@ -48,16 +59,8 @@ const playBlocks = plays.reduce((accumulator, { id, title, author, description, 
 						emoji: true,
 					},
 					style: 'primary',
-					value: id,
-				},
-				{
-					type: 'button',
-					text: {
-						type: 'plain_text',
-						text: 'View Details',
-						emoji: true,
-					},
-					value: `${id}-details`,
+					value: '0',
+					action_id: `play`,
 				},
 			],
 		},

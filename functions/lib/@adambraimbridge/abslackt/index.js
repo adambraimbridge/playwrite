@@ -4,6 +4,7 @@
 const { WebClient } = require('@slack/web-api')
 const slackWebClient = new WebClient(process.env.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN)
 const { spawnModal, updateModal } = require('./modal')
+const { sendMessages } = require('./message')
 
 /**
  * The payload is different depending on what Slack sends.
@@ -61,6 +62,7 @@ const abslact = (request) => {
 		run,
 		spawnModal,
 		updateModal,
+		sendMessages,
 	}
 }
 

@@ -7,12 +7,14 @@ const director = require('./lib/director')
  * This function is called from Slack.
  * @see https://slack.dev/node-slack-sdk/web-api
  */
-exports.handler = (request) => {
+exports.handler = async (request) => {
 	// Always respond with a 200 (OK) response, to let Slack know their post was received.
 	// because otherwise it will time out, and Slack keeps resending the event.
+	// (Note: your HTTP 200 response must be empty for this step to complete successfully.)
+	// ^ @see https://api.slack.com/surfaces/modals/using#interactions#close_current_view
 	const response = {
 		statusCode: 200,
-		body: 'ok',
+		body: '',
 	}
 
 	try {
@@ -23,9 +25,7 @@ exports.handler = (request) => {
 		if (!!challenge && !!type && type === 'url_verification') {
 			response.body = challenge
 		} else {
-			// Do not await a response.
-			director.raiseCurtains(slack)
-			slack.run()
+			await director.raiseCurtains(slack)
 		}
 	} catch (error) {
 		console.error(error)
