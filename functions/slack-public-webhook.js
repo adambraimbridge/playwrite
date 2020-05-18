@@ -1,5 +1,5 @@
-const abslackt = require('./lib/@adambraimbridge/abslackt')
-const director = require('./lib/director')
+const axios = require('axios')
+const { getPayload } = require('./lib/@adambraimbridge/abslackt')
 
 /**
  * Slack Public Webhook
@@ -18,14 +18,20 @@ exports.handler = async (request) => {
 	}
 
 	try {
-		const slack = abslackt(request)
+		const payload = getPayload(request)
 
 		// Handle Slack challenges. See: https://api.slack.com/events/url_verification
-		const { type, challenge } = slack.payload
+		const { type, challenge } = payload
 		if (!!challenge && !!type && type === 'url_verification') {
 			response.body = challenge
 		} else {
-			await director.raiseCurtains(slack)
+			const HOST = 'https://playwrite.ngrok.io'
+			const path = '/.netlify/functions/director'
+			axios.post(`${HOST}${path}`, payload, {
+				headers: {
+					'x-playwrite-api-key': process.env.PLAYWRITE_API_KEY,
+				},
+			})
 		}
 	} catch (error) {
 		console.error(error)

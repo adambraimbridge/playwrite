@@ -15,7 +15,8 @@ const getPayload = ({ body }) => {
 	let payload = false
 	try {
 		// Slack "Events"
-		payload = JSON.parse(body)
+		const json = JSON.parse(body)
+		payload = json.payload || json
 	} catch (error) {
 		// Slack "Interactions"
 		payload = JSON.parse(decodeURIComponent(body).replace('payload=', ''))
@@ -23,47 +24,15 @@ const getPayload = ({ body }) => {
 	return payload
 }
 
-const abslact = (request) => {
-	const payload = getPayload(request)
-	const hooks = []
-
-	// Publish to the App home page for the user.
-	const publish = ({ user_id, view }) => {
-		slackWebClient.views.publish({ user_id, view })
-	}
-
-	// Process any callbacks that have been queued
-	const invokeCallbacks = async ({ event, hooks }) => {
-		const type = event && event.type ? event.type : payload.type
-		hooks
-			.filter((hook) => hook.type === type)
-			.forEach((hook) => {
-				hook.callback()
-			})
-	}
-
-	// Queue a callback for a Slack event type
-	const on = (type, callback) => {
-		// @todo Add a guardian for callback types.
-		hooks.push({ type, callback })
-	}
-
-	// Primary controller for a Slack request
-	const run = async () => {
-		const { event } = payload
-		const results = await invokeCallbacks({ event, hooks })
-		console.log({ results })
-	}
-
-	return {
-		payload,
-		publish,
-		on,
-		run,
-		spawnModal,
-		updateModal,
-		sendMessages,
-	}
+// Publish to the App home page for the user.
+const publish = ({ user_id, view }) => {
+	slackWebClient.views.publish({ user_id, view })
 }
 
-module.exports = abslact
+module.exports = {
+	getPayload,
+	publish,
+	spawnModal,
+	updateModal,
+	sendMessages,
+}
