@@ -4,7 +4,7 @@ const plays = [
 ]
 
 // Generate the Slack markup to show the plays on the app homepage.
-const playBlocks = plays.reduce((accumulator, { id, title, author, description, score }) => {
+const playBlocks = plays.reduce((accumulator, { id, title, author, description, score, duration }) => {
 	return accumulator.concat([
 		{
 			type: 'divider',
@@ -13,7 +13,7 @@ const playBlocks = plays.reduce((accumulator, { id, title, author, description, 
 			type: 'section',
 			text: {
 				type: 'mrkdwn',
-				text: `*${title}* ${score}`,
+				text: `*${title}*`,
 			},
 		},
 		{
@@ -22,47 +22,32 @@ const playBlocks = plays.reduce((accumulator, { id, title, author, description, 
 				{
 					type: 'image',
 					image_url: author.image_url,
-					alt_text: author.name,
+					alt_text: author.real_name,
 				},
 				{
 					type: 'mrkdwn',
-					text: `*${author.name}*`,
+					text: `*${author.real_name}*  |  _${duration}_  |  ${score}`,
 				},
 			],
 		},
 		{
 			type: 'section',
+			block_id: `${id}`,
 			text: {
 				type: 'mrkdwn',
-				text: description,
+				text: `${description}`,
 			},
-		},
-		{
-			type: 'actions',
-			block_id: `${id}`,
-			elements: [
-				// {
-				// 	type: 'button',
-				// 	text: {
-				// 		type: 'plain_text',
-				// 		text: 'Details',
-				// 		emoji: true,
-				// 	},
-				// 	value: id,
-				// 	action_id: `details`,
-				// },
-				{
-					type: 'button',
-					text: {
-						type: 'plain_text',
-						text: 'Play',
-						emoji: true,
-					},
-					style: 'primary',
-					value: '0',
-					action_id: `play`,
+			accessory: {
+				type: 'button',
+				text: {
+					type: 'plain_text',
+					text: 'Play',
+					emoji: true,
 				},
-			],
+				style: 'primary',
+				value: '0',
+				action_id: `play`,
+			},
 		},
 	])
 }, [])

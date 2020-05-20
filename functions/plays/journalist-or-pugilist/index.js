@@ -1,18 +1,18 @@
 const cast = [
 	{
-		username: 'nn',
+		real_name: 'nn',
 		fullname: 'Natalie Narrator',
 	},
 	{
-		username: 'ee',
+		real_name: 'ee',
 		fullname: 'Ellie Elephant',
 	},
 	{
-		username: 'tt',
+		real_name: 'tt',
 		fullname: 'Tyrone Tortoise',
 	},
 	{
-		username: 'vv',
+		real_name: 'vv',
 		fullname: 'Vicky Vole',
 	},
 ]
@@ -149,10 +149,11 @@ const play = {
 	id: 'journalist-or-pugilist',
 	title: 'Journalist or Pugilist?',
 	author: {
-		name: 'Kiya Gurmesa',
+		real_name: 'Kiya Gurmesa',
 		image_url: 'https://api.slack.com/img/blocks/bkb_template_images/profile_3.png',
 	},
 	description: `Writer or fighter — can you tell who's who?`,
+	duration: 'About a minute',
 	score: ':star: :star: :star:',
 	transcript,
 }
