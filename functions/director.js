@@ -1,21 +1,37 @@
-const { publish, spawnModal, updateModal, sendMessages, getConversation, getUser } = require('./lib/@adambraimbridge/abslackt')
-const { plays, homepage } = require('./plays')
+const { publish, spawnModal, updateModal, sendMessages, getConversation, createConversation, getUser } = require('./lib/@adambraimbridge/abslackt')
+const { plays, getPlayBlocks } = require('./plays')
 
-const updateHomepage = async ({ event }) => {
-	const { user, view, tab } = event
+const updateHomepage = async ({ user_id }) => {
+	const blocks = await getPlayBlocks({ user_id })
+	const taglines = [
+		`Because you're worth it.`, //
+		`Because FT stands for Fun Training.`,
+		`Learning doesn't have to be boring.`,
+		`Lockdown? More like _learn_ down amirite`,
+		`Hey. You're awesome. I don't say that often enough. But you are.`,
+		`Stay tuned for further updates.`,
+		`Breaking down the barriers and holding a mirror up to global multiculturalism`,
+		`:birthday: Happy birthday!`,
+		`The best experience for corporate games synergy engagement.`,
+		`I can't believe I get paid to do this.`,
+		`Join #iloveadam today!`,
+		`Without fear and without favour.`,
+	]
+	const randomTagline = taglines[Math.floor(Math.random() * taglines.length)]
+	blocks.push({
+		type: 'context',
+		elements: [
+			{
+				type: 'mrkdwn',
+				text: `:performing_arts: _Playwrite._ ${randomTagline}`,
+			},
+		],
+	})
 
-	if (tab !== 'home') {
-		console.warn(`🐶 Tab: ${tab}`)
-		return false
-	}
-
-	const { title } = view
-	const { blocks } = homepage
 	publish({
-		user_id: user.id || user,
+		user_id,
 		view: {
 			type: 'home',
-			title,
 			blocks,
 		},
 	})
@@ -104,9 +120,6 @@ const deliverModal = ({ modalId, playId, playTitle, action, currentLine, nextLin
 			view,
 		}).catch(console.error)
 	}
-
-	// @todo update the homepage to store game progress (..?)
-	// updateHomepage({ payload })
 }
 
 const deliverMessages = async ({ playId, cast, transcript, currentLineNumber, conversation }) => {
@@ -127,6 +140,21 @@ const deliverMessages = async ({ playId, cast, transcript, currentLineNumber, co
 const handleBlockActions = async ({ payload }) => {
 	const { action_id: action, block_id: playId, value } = payload.actions[0]
 	console.debug(`🦄 Action = ${action}`)
+	if (
+		![
+			'play', //
+			'continue',
+			'restart',
+			'option-',
+		].includes(action)
+	) {
+		console.warn('🐶 Unrecognised action.')
+	}
+
+	if (action === 'restart') {
+		console.debug('🦄 @todo: Restart by deleting the appropriate channel.')
+		return false
+	}
 
 	const nowShowing = plays.find((play) => play.id === playId)
 	if (!nowShowing) {
@@ -144,13 +172,23 @@ const handleBlockActions = async ({ payload }) => {
 
 	// @todo update the homepage to store the conversation's channel ID (..?)
 	// updateHomepage({ payload })
-	const { conversation } = await getConversation({
-		playId,
+	let conversation
+	const conversationName = `${playId}-${player.id}`.toLowerCase()
+	const existing = await getConversation({
+		name: conversationName,
 		playerId: player.id,
 	})
+	if (!!existing) {
+		conversation = existing.conversation
+	} else {
+		const created = await createConversation({
+			name: conversationName,
+			playerId: player.id,
+		})
+		conversation = created.conversation
+	}
 
 	let currentLineNumber
-
 	// If the action was an option in a message,
 	// 1. find the option in the transcript that matches the`action_id`
 	// 2. update the button that was clicked to show it was right (green) or wrong (red)
@@ -159,6 +197,8 @@ const handleBlockActions = async ({ payload }) => {
 		const { lineNumber, optionNumber } = JSON.parse(value)
 		const selectedOption = transcript[lineNumber].options[optionNumber]
 		const messages = [selectedOption.response]
+
+		// @todo skip the "fake typing" delay for option interations.
 		sendMessages({
 			playId,
 			cast,
@@ -221,10 +261,25 @@ exports.handler = async (request) => {
 
 	const payload = JSON.parse(request.body)
 	const { type } = payload.event || payload // @note `app_home_opened` type is in payload.event, and the others are in payload.
-	console.debug(`🦄 Type: ${type}`)
-	if (type === 'app_home_opened') updateHomepage({ event: payload.event })
-	if (type === 'block_actions') handleBlockActions({ payload })
-	if (type === 'view_submission') handleViewSubmissions({ payload })
+	console.debug(`🦄 Event type: ${type}`)
+	if (type === 'app_home_opened') {
+		const { user, tab } = payload.event
+		if (tab !== 'home') {
+			console.warn(`🐶 Tab: ${tab}`)
+			return false
+		}
+		await updateHomepage({ user_id: user }).catch(console.error)
+	}
+
+	if (type === 'block_actions') {
+		await handleBlockActions({ payload }).catch(console.error)
+		await updateHomepage({ user_id: payload.user.id }).catch(console.error)
+	}
+
+	if (type === 'view_submission') {
+		await handleViewSubmissions({ payload }).catch(console.error)
+		await updateHomepage({ user_id: payload.user.id }).catch(console.error)
+	}
 
 	return {
 		statusCode: 200,

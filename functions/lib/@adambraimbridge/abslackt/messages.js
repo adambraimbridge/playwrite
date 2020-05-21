@@ -20,7 +20,7 @@ const sendMessages = async ({ playId, cast, messages, currentLineNumber, convers
 
 		// Delay slightly between posting messages to simulate the real-life instant-messaging experience
 		// @todo If there's a new actor "coming onstage" as it were, add another few seconds of delay, to further help with suspension of disbelief
-		const milliseconds = Math.floor(text.length) * 10
+		const milliseconds = text.length * 20
 		await delay(milliseconds)
 
 		const view = Object.assign({}, messageStub, {
