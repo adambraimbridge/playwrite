@@ -24,7 +24,7 @@ const getPlayBlocks = ({ user_id }) => {
 						text: 'Restart',
 					},
 					style: 'danger',
-					value: '0',
+					value: conversation.id,
 					action_id: `restart`,
 				},
 				{

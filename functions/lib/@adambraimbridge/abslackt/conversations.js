@@ -66,7 +66,27 @@ const inviteUser = async ({ channel, users }) => {
 		.catch(console.error)
 }
 
+// It's not possible to delete conversations via Slack API
+// And it's not possible to delete 100% of messages from a conversation.
+// So yeeting === rename then archive channel.
+const yeetConversation = async ({ name, id }) => {
+	console.debug(`🦄 Yeeting conversation ${id} ... `)
+	await slackWebClient.conversations //
+		.rename({
+			channel: id,
+			name: `${name}-${Date.now()}`,
+		})
+		.catch(console.error)
+
+	await slackWebClient.conversations //
+		.archive({
+			channel: id,
+		})
+		.catch(console.error)
+}
+
 module.exports = {
 	getConversation,
 	createConversation,
+	yeetConversation,
 }

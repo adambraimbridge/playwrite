@@ -1,4 +1,4 @@
-const { publish, spawnModal, updateModal, sendMessages, getConversation, createConversation, getUser } = require('./lib/@adambraimbridge/abslackt')
+const { publish, spawnModal, updateModal, sendMessages, getConversation, createConversation, yeetConversation, getUser } = require('./lib/@adambraimbridge/abslackt')
 const { plays, getPlayBlocks } = require('./plays')
 
 const updateHomepage = async ({ user_id }) => {
@@ -151,11 +151,6 @@ const handleBlockActions = async ({ payload }) => {
 		console.warn('🐶 Unrecognised action.')
 	}
 
-	if (action === 'restart') {
-		console.debug('🦄 @todo: Restart by deleting the appropriate channel.')
-		return false
-	}
-
 	const nowShowing = plays.find((play) => play.id === playId)
 	if (!nowShowing) {
 		console.warn(`🐶 Play not found for "${playId}".`)
@@ -170,8 +165,6 @@ const handleBlockActions = async ({ payload }) => {
 	player.icon_emoji = ':cat:'
 	cast.player = player
 
-	// @todo update the homepage to store the conversation's channel ID (..?)
-	// updateHomepage({ payload })
 	let conversation
 	const conversationName = `${playId}-${player.id}`.toLowerCase()
 	const existing = await getConversation({
@@ -212,6 +205,13 @@ const handleBlockActions = async ({ payload }) => {
 		} else {
 			currentLineNumber = lineNumber + 1
 		}
+	} else if (action === 'restart') {
+		console.debug('🦄 Restart by yeeting all the messages from the appropriate channel.')
+		await yeetConversation({
+			name: conversationName,
+			id: value,
+		})
+		currentLineNumber = 0
 	} else {
 		currentLineNumber = parseInt(value)
 	}
@@ -249,7 +249,9 @@ const handleBlockActions = async ({ payload }) => {
 	}
 }
 
-const handleViewSubmissions = ({ payload }) => {}
+const handleViewSubmissions = ({ payload }) => {
+	// @todo ^ this.
+}
 
 exports.handler = async (request) => {
 	if (!request.headers['x-playwrite-api-key'] || request.headers['x-playwrite-api-key'] !== process.env.PLAYWRITE_API_KEY) {

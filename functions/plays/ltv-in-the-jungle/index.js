@@ -118,9 +118,12 @@ You find yourself starting yet another day of work.`,
 	{
 		type: 'message',
 		from: 'natalie-narrator',
-		text: `Anxiety grows and you feel your resolve weaken as you reach for the bottle of vodka under your desk ...
-
-Suddenly you snatch back your empty hand. "No", you think. Not again. Never again.`,
+		text: `Anxiety grows and you feel your resolve weaken as you reach for the bottle of vodka under your desk ...`,
+	},
+	{
+		type: 'message',
+		from: 'natalie-narrator',
+		text: `Suddenly you snatch back your empty hand. "No", you think. Not again. _Never again._`,
 	},
 	{
 		type: 'message',

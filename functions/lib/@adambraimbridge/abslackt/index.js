@@ -5,7 +5,7 @@ const { WebClient } = require('@slack/web-api')
 const slackWebClient = new WebClient(process.env.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN)
 const { spawnModal, updateModal } = require('./modals')
 const { sendMessages } = require('./messages')
-const { getConversation, createConversation } = require('./conversations')
+const { getConversation, createConversation, yeetConversation } = require('./conversations')
 const { getUser } = require('./users')
 
 /**
@@ -39,5 +39,6 @@ module.exports = {
 	sendMessages,
 	getConversation,
 	createConversation,
+	yeetConversation,
 	getUser,
 }
