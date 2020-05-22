@@ -1,12 +1,32 @@
-const { getConversation } = require('../lib/@adambraimbridge/abslackt')
+const { getUser, getConversation } = require('../lib/@adambraimbridge/abslackt')
 
 const plays = [
 	require('./ltv-in-the-jungle'), //
 	// require('./journalist-or-pugilist'),
 ]
 
+const getPlay = async ({ playId }) => {
+	const foundPlay = plays.find((play) => play.id === playId)
+	if (!foundPlay) return false
+
+	// const { author: user } = foundPlay
+	// if (!!user) {
+	// 	console.debug(`🦄 Finding author #${user}`)
+	// 	const { profile } = await getUser({ user })
+	// 	const { real_name, image_512: image_url } = profile
+	// 	if (!!real_name && image_url) {
+	// 		foundPlay.author = {
+	// 			real_name,
+	// 			image_url,
+	// 		}
+	// 	}
+	// }
+	return foundPlay
+}
+
 // Generate the Slack markup to show the plays on the app homepage.
-const getPlayBlocks = ({ user_id }) => {
+const getPlayBlocks = async ({ user_id }) => {
+	console.debug(`🦄 Getting playblocks. ${user_id}`)
 	return plays.reduce(async (accumulator, { id, title, author, description, score, duration }) => {
 		const elements = []
 		const conversationName = `${id}-${user_id}`.toLowerCase()
@@ -23,7 +43,6 @@ const getPlayBlocks = ({ user_id }) => {
 						type: 'plain_text',
 						text: 'Restart',
 					},
-					style: 'danger',
 					value: conversation.id,
 					action_id: `restart`,
 				},
@@ -31,10 +50,11 @@ const getPlayBlocks = ({ user_id }) => {
 					type: 'button',
 					text: {
 						type: 'plain_text',
-						text: 'Continue',
+						text: 'Check Messages',
 					},
 					style: 'primary',
 					url: `slack://channel?team=${conversation.shared_team_ids[0]}&id=${conversation.id}`,
+					action_id: `messages-link`,
 				}
 			)
 		} else {
@@ -51,28 +71,36 @@ const getPlayBlocks = ({ user_id }) => {
 			})
 		}
 
-		return accumulator.concat([
-			{
-				type: 'section',
-				text: {
-					type: 'mrkdwn',
-					text: `*${title}*`,
-				},
+		accumulator.push({
+			type: 'section',
+			text: {
+				type: 'mrkdwn',
+				text: `*${title}*`,
 			},
-			{
-				type: 'context',
-				elements: [
-					{
-						type: 'image',
-						image_url: author.image_url,
-						alt_text: author.real_name,
-					},
-					{
-						type: 'mrkdwn',
-						text: `*${author.real_name}*  |  _${duration}_  |  ${score}`,
-					},
-				],
-			},
+		})
+
+		if (!!author) {
+			const { profile } = await getUser({ user: author })
+			const { real_name, image_512: image_url } = profile
+			if (!!real_name && !!image_url) {
+				accumulator.push({
+					type: 'context',
+					elements: [
+						{
+							type: 'image',
+							image_url,
+							alt_text: real_name,
+						},
+						{
+							type: 'mrkdwn',
+							text: `*${real_name}*  |  _${duration}_  |  ${score}`,
+						},
+					],
+				})
+			}
+		}
+
+		accumulator.push(
 			{
 				type: 'section',
 				text: {
@@ -87,11 +115,14 @@ const getPlayBlocks = ({ user_id }) => {
 			},
 			{
 				type: 'divider',
-			},
-		])
+			}
+		)
+
+		return accumulator
 	}, [])
 }
 
+// @todo make some dynamic leaderboards for the homepage
 const homepageBlocks = [
 	{
 		type: 'section',
@@ -156,6 +187,7 @@ const homepageBlocks = [
 
 module.exports = {
 	plays,
+	getPlay,
 	getPlayBlocks,
 	homepageBlocks,
 }

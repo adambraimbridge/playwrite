@@ -4,7 +4,7 @@ const slackWebClient = new WebClient(process.env.SLACK_BOT_USER_OAUTH_ACCESS_TOK
 // @see https://api.slack.com/docs/conversations-api
 const getConversation = async ({ name, playerId }) => {
 	let conversation
-	console.debug(`🦄 Searching for ${name} ... `)
+	console.debug(`🦄 Searching for conversation #${name} ... `)
 	const userConversations = await slackWebClient.users //
 		.conversations({
 			limit: 1000,
@@ -18,7 +18,7 @@ const getConversation = async ({ name, playerId }) => {
 	})
 
 	if (!conversation) {
-		console.debug('🦄 Conversation not found.')
+		console.debug('🦄 Slack conversation channel not found. This is fine.')
 		return false
 	}
 
@@ -56,8 +56,9 @@ const createConversation = async ({ name, playerId }) => {
 	}
 }
 
-// @todo Check that the conversation hasn't been deleted/archived/abandoned by the user ..?
+// @todo Check that the conversation hasn't been deleted/archived/abandoned ..?
 const inviteUser = async ({ channel, users }) => {
+	console.log(`🦄 Inviting user #${users} to the conversation`)
 	await slackWebClient.conversations //
 		.invite({
 			channel,

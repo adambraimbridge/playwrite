@@ -1,7 +1,18 @@
-const { publish, spawnModal, updateModal, sendMessages, getConversation, createConversation, yeetConversation, getUser } = require('./lib/@adambraimbridge/abslackt')
-const { plays, getPlayBlocks } = require('./plays')
+const {
+	publish, //
+	spawnModal,
+	updateModal,
+	sendMessages,
+	getConversation,
+	createConversation,
+	yeetConversation,
+	getUser,
+} = require('./lib/@adambraimbridge/abslackt')
+
+const { getPlay, getPlayBlocks } = require('./plays')
 
 const updateHomepage = async ({ user_id }) => {
+	console.debug(`🦄 Updating homepage for user #${user_id}`)
 	const blocks = await getPlayBlocks({ user_id })
 	const taglines = [
 		`Because you're worth it.`, //
@@ -37,7 +48,7 @@ const updateHomepage = async ({ user_id }) => {
 	})
 }
 
-const deliverModal = ({ modalId, playId, playTitle, action, currentLine, nextLine, nextLineNumber, homepageUrl }) => {
+const deliverModal = ({ view_id, view, playId, currentLine, nextLine, nextLineNumber, homepageUrl }) => {
 	const blocks = []
 
 	// Image block
@@ -98,28 +109,11 @@ const deliverModal = ({ modalId, playId, playTitle, action, currentLine, nextLin
 		],
 	})
 
-	// View
-	const view = {
-		callback_id: playId,
-		type: 'modal',
-		title: {
-			type: 'plain_text',
-			text: playTitle,
-			emoji: true,
-		},
-		blocks,
-	}
-	if (action === 'play') {
-		spawnModal({
-			trigger_id: modalId,
-			view,
-		}).catch(console.error)
-	} else {
-		updateModal({
-			view_id: modalId,
-			view,
-		}).catch(console.error)
-	}
+	view.blocks = blocks
+	updateModal({
+		view_id,
+		view,
+	}).catch(console.error)
 }
 
 const deliverMessages = async ({ playId, cast, transcript, currentLineNumber, conversation }) => {
@@ -141,58 +135,86 @@ const handleBlockActions = async ({ payload }) => {
 	const { action_id: action, block_id: playId, value } = payload.actions[0]
 	console.debug(`🦄 Action = ${action}`)
 	if (
+		!action.includes('option-') &&
 		![
 			'play', //
 			'continue',
 			'restart',
-			'option-',
+			'messages-link',
+			'check-messages',
 		].includes(action)
 	) {
 		console.warn('🐶 Unrecognised action.')
+		return false
 	}
 
-	const nowShowing = plays.find((play) => play.id === playId)
+	if (action === 'messages-link') {
+		// @todo check that the player has made it past the modal onboarding.
+		// or move the channel creation to after the onboarding ends.
+		console.debug('🦄 Player clicked a link to the appropriate Slack conversation channel.')
+		return false
+	}
+
+	const nowShowing = await getPlay({ playId })
 	if (!nowShowing) {
 		console.warn(`🐶 Play not found for "${playId}".`)
 		return false
 	}
-	const { cast, getTranscript } = nowShowing
+	const { title, cast, getTranscript } = nowShowing
+
+	// `trigger_id` must be used within 500ms. in this case, it is needed to spawn a modal view.
+	// The subsequent view id can thereafter be used for modal updates (within a few hours)
+	let view = payload.view
+	if (action === 'play') {
+		const response = await spawnModal({
+			trigger_id: payload.trigger_id,
+			view: {
+				callback_id: playId,
+				type: 'modal',
+				title: {
+					type: 'plain_text',
+					text: title,
+					emoji: true,
+				},
+				// @todo add a loading screen block
+				blocks: [],
+			},
+		}).catch(console.error)
+		view = response.view
+	}
 
 	const player = await getUser({ user: payload.user.id })
-	const transcript = getTranscript({ player })
-
-	// @todo move this to a "getCast({player})" function
-	player.icon_emoji = ':cat:'
-	cast.player = player
+	const conversationName = `${playId}-${player.id}`.toLowerCase()
+	const { id: playerId } = await getUser({ user: payload.user.id })
+	const details = {
+		name: conversationName,
+		playerId,
+	}
 
 	let conversation
-	const conversationName = `${playId}-${player.id}`.toLowerCase()
-	const existing = await getConversation({
-		name: conversationName,
-		playerId: player.id,
-	})
+	const existing = await getConversation(details)
 	if (!!existing) {
 		conversation = existing.conversation
 	} else {
-		const created = await createConversation({
-			name: conversationName,
-			playerId: player.id,
-		})
+		const created = await createConversation(details)
 		conversation = created.conversation
 	}
 
+	const transcript = getTranscript({ player })
 	let currentLineNumber
 	// If the action was an option in a message,
-	// 1. find the option in the transcript that matches the`action_id`
-	// 2. update the button that was clicked to show it was right (green) or wrong (red)
-	// 3. Then send the appropriate response message to the channel. (@todo handle responses that are modals)
+	//  1. find the option in the transcript that matches the`action_id`
+	//  2. update the button that was clicked to show it was right (green) or wrong (red)
+	//  3. Then send the appropriate response message to the channel.
+	//     @todo handle responses that are modals
 	if (action.includes('option-')) {
 		const { lineNumber, optionNumber } = JSON.parse(value)
 		const selectedOption = transcript[lineNumber].options[optionNumber]
 		const messages = [selectedOption.response]
 
-		// @todo skip the "fake typing" delay for option interations.
+		// @note skip the "fake typing" delay for option interations.
 		sendMessages({
+			skipDelay: true,
 			playId,
 			cast,
 			messages,
@@ -206,17 +228,22 @@ const handleBlockActions = async ({ payload }) => {
 			currentLineNumber = lineNumber + 1
 		}
 	} else if (action === 'restart') {
-		console.debug('🦄 Restart by yeeting all the messages from the appropriate channel.')
+		console.debug('🦄 Restart by yeeting the appropriate channel.')
 		await yeetConversation({
 			name: conversationName,
 			id: value,
 		})
-		currentLineNumber = 0
+		// @todo decide whether or not to trigger the modal when "Restart" is clicked
+		// currentLineNumber = 0
+		return
 	} else {
 		currentLineNumber = parseInt(value)
 	}
-
 	const currentLine = transcript[currentLineNumber]
+	if (!currentLine) {
+		throw new Error(`🤔 Could not find line #${currentLineNumber} in ${playId}`)
+	}
+
 	const { type } = currentLine
 	if (type === 'message') {
 		deliverMessages({
@@ -237,10 +264,13 @@ const handleBlockActions = async ({ payload }) => {
 		if (!nextLine) console.warn('🐶 Next line not found.')
 
 		deliverModal({
-			modalId: action === 'play' ? payload.trigger_id : payload.view.id,
+			view_id: view.id,
+			view: {
+				type: 'modal',
+				title: view.title,
+				callback_id: view.callback_id,
+			},
 			playId,
-			playTitle: nowShowing.title,
-			action,
 			currentLine,
 			nextLine,
 			nextLineNumber,
@@ -262,26 +292,19 @@ exports.handler = async (request) => {
 	}
 
 	const payload = JSON.parse(request.body)
-	const { type } = payload.event || payload // @note `app_home_opened` type is in payload.event, and the others are in payload.
+	const { type } = payload
 	console.debug(`🦄 Event type: ${type}`)
-	if (type === 'app_home_opened') {
-		const { user, tab } = payload.event
-		if (tab !== 'home') {
-			console.warn(`🐶 Tab: ${tab}`)
-			return false
-		}
-		await updateHomepage({ user_id: user }).catch(console.error)
-	}
 
 	if (type === 'block_actions') {
 		await handleBlockActions({ payload }).catch(console.error)
-		await updateHomepage({ user_id: payload.user.id }).catch(console.error)
 	}
 
-	if (type === 'view_submission') {
-		await handleViewSubmissions({ payload }).catch(console.error)
-		await updateHomepage({ user_id: payload.user.id }).catch(console.error)
-	}
+	// if (type === 'view_submission') {
+	// 	await handleViewSubmissions({ payload }).catch(console.error)
+	// }
+
+	const user_id = payload.event ? payload.event.user : payload.user.id
+	updateHomepage({ user_id }).catch(console.error)
 
 	return {
 		statusCode: 200,

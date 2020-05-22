@@ -34,7 +34,7 @@ const getTranscript = ({ player }) => [
 		from: 'natalie-narrator',
 		image_url: 'http://placekitten.com/700/500',
 		alt_text: 'In this drama you play the part of a kitten.',
-		text: `The curtain raises.
+		text: `The curtain rises.
 
 You find yourself starting yet another day of work.`,
 	},
@@ -48,6 +48,8 @@ You find yourself starting yet another day of work.`,
 	{
 		type: 'modal',
 		from: 'natalie-narrator',
+		image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/20100605_Harry_Malter_%280062%29.jpg/800px-20100605_Harry_Malter_%280062%29.jpg',
+		alt_text: `This season the part of Ellie Elephant is played by Suzie (https://commons.wikimedia.org/wiki/Category:Suzy_(elephant))`,
 		text: `Your day begins with a startling missive from your boss, Ellie Elephant ...`,
 	},
 	{
@@ -87,7 +89,7 @@ You find yourself starting yet another day of work.`,
 				response: {
 					type: 'message',
 					from: 'natalie-narrator',
-					text: `No, that can’t be right. Try again.`,
+					text: `❌ \`Limited Term Variable\` No. That's not even a thing.`,
 				},
 			},
 			{
@@ -96,7 +98,7 @@ You find yourself starting yet another day of work.`,
 				response: {
 					type: 'message',
 					from: 'natalie-narrator',
-					text: `Ah yes, of course. Well done.`,
+					text: `✅ \`Lifetime Value\` Ah yes, of course. Well done.`,
 				},
 			},
 			{
@@ -105,7 +107,7 @@ You find yourself starting yet another day of work.`,
 				response: {
 					type: 'message',
 					from: 'natalie-narrator',
-					text: `No. That's not even a thing.`,
+					text: `🤔 \`Least Terrible Version\` No, that can’t be right. Try again.`,
 				},
 			},
 		],
@@ -164,16 +166,14 @@ So you send them a message asking for help.`,
 	},
 ]
 
+// Author comes from Slack User ID https://[slack-organisation].slack.com/account/profile
 const play = {
+	author: 'U012B5GLCJG',
 	id: 'ltv-in-the-jungle',
 	title: 'LTV in the Jungle',
-	author: {
-		real_name: 'Angela Sjoholm',
-		image_url: 'https://api.slack.com/img/blocks/bkb_template_images/profile_2.png',
-	},
 	description: 'A fast-paced action adventure pitting you against the wild.',
 	score: ':star: :star: :star: :star:',
-	duration: 'Ten minutes',
+	duration: 'Less than five minutes',
 	getTranscript,
 	cast,
 }
