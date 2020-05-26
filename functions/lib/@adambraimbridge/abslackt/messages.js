@@ -16,7 +16,7 @@ const sendMessages = async ({ skipDelay, playId, cast, messages, currentLineNumb
 	let lineNumber = currentLineNumber
 	for (let message of messages) {
 		const { real_name, icon_emoji } = cast[message.from]
-		const { text, options } = message
+		const { text, options, image_url, alt_text } = message
 
 		// Delay slightly between posting messages to simulate the real-life instant-messaging experience
 		// @todo If there's a new actor "coming onstage" as it were, add another few seconds of delay, to further help with suspension of disbelief
@@ -40,6 +40,15 @@ const sendMessages = async ({ skipDelay, playId, cast, messages, currentLineNumb
 				},
 			},
 		]
+
+		// Image block
+		if (image_url) {
+			view.blocks.push({
+				type: 'image',
+				image_url,
+				alt_text,
+			})
+		}
 
 		if (options) {
 			const elements = options.map((option, index) => {

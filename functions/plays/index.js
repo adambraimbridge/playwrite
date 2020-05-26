@@ -8,25 +8,12 @@ const plays = [
 const getPlay = async ({ playId }) => {
 	const foundPlay = plays.find((play) => play.id === playId)
 	if (!foundPlay) return false
-
-	// const { author: user } = foundPlay
-	// if (!!user) {
-	// 	console.debug(`🦄 Finding author #${user}`)
-	// 	const { profile } = await getUser({ user })
-	// 	const { real_name, image_512: image_url } = profile
-	// 	if (!!real_name && image_url) {
-	// 		foundPlay.author = {
-	// 			real_name,
-	// 			image_url,
-	// 		}
-	// 	}
-	// }
 	return foundPlay
 }
 
 // Generate the Slack markup to show the plays on the app homepage.
 const getPlayBlocks = async ({ user_id }) => {
-	console.debug(`🦄 Getting playblocks. ${user_id}`)
+	console.debug(`🦄 Getting playblocks`)
 	return plays.reduce(async (accumulator, { id, title, author, description, score, duration }) => {
 		const elements = []
 		const conversationName = `${id}-${user_id}`.toLowerCase()

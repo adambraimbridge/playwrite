@@ -8,27 +8,13 @@ const {
 	yeetConversation,
 	getUser,
 } = require('./lib/@adambraimbridge/abslackt')
-
+const { getRandomTagline } = require('./lib/branding')
 const { getPlay, getPlayBlocks } = require('./plays')
 
 const updateHomepage = async ({ user_id }) => {
 	console.debug(`🦄 Updating homepage for user #${user_id}`)
 	const blocks = await getPlayBlocks({ user_id })
-	const taglines = [
-		`Because you're worth it.`, //
-		`Because FT stands for Fun Training.`,
-		`Learning doesn't have to be boring.`,
-		`Lockdown? More like _learn_ down amirite`,
-		`Hey. You're awesome. I don't say that often enough. But you are.`,
-		`Stay tuned for further updates.`,
-		`Breaking down the barriers and holding a mirror up to global multiculturalism`,
-		`:birthday: Happy birthday!`,
-		`The best experience for corporate games synergy engagement.`,
-		`I can't believe I get paid to do this.`,
-		`Join #iloveadam today!`,
-		`Without fear and without favour.`,
-	]
-	const randomTagline = taglines[Math.floor(Math.random() * taglines.length)]
+	const randomTagline = getRandomTagline()
 	blocks.push({
 		type: 'context',
 		elements: [
@@ -176,8 +162,13 @@ const handleBlockActions = async ({ payload }) => {
 					text: title,
 					emoji: true,
 				},
-				// @todo add a loading screen block
-				blocks: [],
+				blocks: [
+					{
+						type: 'image',
+						image_url: 'https://upload.wikimedia.org/wikipedia/commons/5/53/Loading-red-spot.gif',
+						alt_text: 'Loading ... [Attribution: Baharboloor25 / CC BY-SA (https://creativecommons.org/licenses/by-sa/4.0)]',
+					},
+				],
 			},
 		}).catch(console.error)
 		view = response.view
@@ -200,6 +191,17 @@ const handleBlockActions = async ({ payload }) => {
 		conversation = created.conversation
 	}
 
+	// Let the player join the cast
+	// @todo figure out how to display the player's avatar
+	// @see https://api.slack.com/methods/chat.postMessage#arg_icon_url
+	if (cast) {
+		const { real_name } = player.profile
+		cast.player = {
+			real_name,
+			icon_emoji: ':speaking_head_in_silhouette:',
+		}
+	}
+
 	const transcript = getTranscript({ player })
 	let currentLineNumber
 	// If the action was an option in a message,
@@ -209,12 +211,15 @@ const handleBlockActions = async ({ payload }) => {
 	//     @todo handle responses that are modals
 	if (action.includes('option-')) {
 		const { lineNumber, optionNumber } = JSON.parse(value)
-		const selectedOption = transcript[lineNumber].options[optionNumber]
+		const { options } = transcript[lineNumber]
+
+		console.log({ lineNumber, options })
+
+		const selectedOption = options[optionNumber]
 		const messages = [selectedOption.response]
 
-		// @note skip the "fake typing" delay for option interations.
 		sendMessages({
-			skipDelay: true,
+			skipDelay: true, // @note skip the "fake typing" delay
 			playId,
 			cast,
 			messages,
@@ -222,7 +227,7 @@ const handleBlockActions = async ({ payload }) => {
 			currentLineNumber: lineNumber,
 		})
 
-		if (!selectedOption.correct) {
+		if (!selectedOption.continue) {
 			return
 		} else {
 			currentLineNumber = lineNumber + 1
