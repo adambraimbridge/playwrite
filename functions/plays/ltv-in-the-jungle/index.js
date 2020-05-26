@@ -459,15 +459,21 @@ You find yourself starting yet another day of work.`,
 	},
 	{
 		type: 'message',
-		from: 'natalie-narrator',
-		text: ` ... TODO:
-		The player has to pick an LTV plan.
+		from: 'player',
+		text: `
+
+		TO DO:
+
+		The player has to pick some kind of LTV plan.
 
 		Once they do, they'll get a summary of what they just learned.
 
 		Maybe they'll get a score, or some gold stars.
 
-		There'll be a feedback prompt with :thumbsup: :thumbsdown:  or similar.`,
+		In version 1.1, there'll be a feedback prompt with :thumbsup: :thumbsdown:  or similar.
+
+		Next up, we can make more little games to explore how LTV relates to 'Attribution' and 'Sensitivity'.
+		`,
 	},
 	{
 		type: 'message',

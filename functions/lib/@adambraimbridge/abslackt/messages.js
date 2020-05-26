@@ -20,7 +20,7 @@ const sendMessages = async ({ skipDelay, playId, cast, messages, currentLineNumb
 
 		// Delay slightly between posting messages to simulate the real-life instant-messaging experience
 		// @todo If there's a new actor "coming onstage" as it were, add another few seconds of delay, to further help with suspension of disbelief
-		const milliseconds = text.length * 20
+		const milliseconds = text.length * 20 + 100
 
 		if (!skipDelay) {
 			await delay(milliseconds)
@@ -43,7 +43,7 @@ const sendMessages = async ({ skipDelay, playId, cast, messages, currentLineNumb
 
 		// Image block
 		if (image_url) {
-			view.blocks.push({
+			view.blocks.unshift({
 				type: 'image',
 				image_url,
 				alt_text,
