@@ -2,13 +2,10 @@
  * abslackt == "[A]dam + [B]raimbridge + "[Slack] + abstrac[t]"
  */
 const { WebClient } = require('@slack/web-api')
-const slackWebClient = new WebClient(process.env.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN)
 const { spawnModal, updateModal } = require('./modals')
 const { sendMessages } = require('./messages')
 const { getConversation, createConversation, yeetConversation } = require('./conversations')
 const { getUser } = require('./users')
-
-console.log('XXXXXXX', process.env.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN)
 
 /**
  * The payload is different depending on what Slack sends.
@@ -29,7 +26,8 @@ const getPayload = ({ body }) => {
 }
 
 // Publish to the App home page for the user.
-const publish = async ({ user_id, view }) => {
+const publish = async ({ access_token, user_id, view }) => {
+	const slackWebClient = new WebClient(access_token)
 	await slackWebClient.views.publish({ user_id, view })
 }
 

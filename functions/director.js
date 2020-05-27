@@ -1,6 +1,7 @@
 const { PLAYWRITE_API_KEY, NETLIFY_AUTH_TOKEN, NETLIFY_PLAYWRITE_SITE_ID } = process.env
 const NetlifyAPI = require('netlify')
 const netlifyClient = new NetlifyAPI(NETLIFY_AUTH_TOKEN)
+
 const {
 	publish, //
 	spawnModal,
@@ -14,7 +15,7 @@ const {
 const { getRandomTagline } = require('./lib/branding')
 const { getPlay, getPlayBlocks } = require('./plays')
 
-const updateHomepage = async ({ user_id }) => {
+const updateHomepage = async ({ access_token, user_id }) => {
 	console.debug(`🦄 Updating homepage for user #${user_id}`)
 	const blocks = await getPlayBlocks({ user_id })
 	const randomTagline = getRandomTagline()
@@ -29,6 +30,7 @@ const updateHomepage = async ({ user_id }) => {
 	})
 
 	publish({
+		access_token,
 		user_id,
 		view: {
 			type: 'home',
@@ -299,23 +301,21 @@ exports.handler = async (request) => {
 		}
 	}
 
+	const payload = JSON.parse(request.body)
+	const { type, team } = payload
 	const siteMetaData = await netlifyClient //
 		.getSiteMetadata({
 			site_id: NETLIFY_PLAYWRITE_SITE_ID,
 		})
 		.catch(console.error)
+	const { access_token } = siteMetaData[team.id]
 
-	const payload = JSON.parse(request.body)
-	const { type, team } = payload
-	console.debug(`🦄 Event type: ${type}`)
-
-	if (!team || !team.id) {
-		console.warn({ ...payload })
+	if (!access_token) {
+		console.warn(`🤔 Error: access_token not found.`)
+		console.debug({ ...siteMetaData })
 	}
 
-	const { access_token } = siteMetaData[team.id]
-	process.env.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN = access_token
-
+	console.debug(`🦄 Event type: ${type}`)
 	if (type === 'block_actions') {
 		await handleBlockActions({ payload }).catch(console.error)
 	}
@@ -325,7 +325,7 @@ exports.handler = async (request) => {
 	// }
 
 	const user_id = payload.event ? payload.event.user : payload.user.id
-	await updateHomepage({ user_id }).catch(console.error)
+	await updateHomepage({ access_token, user_id }).catch(console.error)
 
 	return {
 		statusCode: 200,
