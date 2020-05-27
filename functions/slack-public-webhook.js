@@ -1,5 +1,5 @@
 const axios = require('axios')
-const { getPayload } = require('./lib/abslackt')
+const { getPayload } = require('./abslackt')
 const SITE_HOST = 'https://playwrite.netlify.app'
 
 /**

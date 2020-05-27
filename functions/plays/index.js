@@ -1,4 +1,4 @@
-const { getUser, getConversation } = require('../lib/abslackt')
+const { getUser, getConversation } = require('../abslackt')
 
 const plays = [
 	require('./ltv-in-the-jungle'), //
