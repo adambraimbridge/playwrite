@@ -25,7 +25,7 @@ exports.handler = async (request) => {
 	if (!oauthResponse || !oauthResponse.ok) {
 		return {
 			statusCode: 500,
-			body: `Sorry. Could not access Slack.`,
+			body: `🎭 Sorry. Could not access Slack.`,
 		}
 	}
 	const { id: team_id } = oauthResponse.team
@@ -50,11 +50,11 @@ exports.handler = async (request) => {
 			}
 		})
 
-	console.log({ ...response })
-	if (!response || !response.ok) {
+	if (!response || !response[team_id]) {
+		console.warn({ ...response })
 		return {
 			statusCode: 500,
-			body: `Sorry. Could not save site details.`,
+			body: `🎭 Sorry. Could not save site details.`,
 		}
 	}
 
