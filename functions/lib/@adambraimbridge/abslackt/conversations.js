@@ -13,9 +13,11 @@ const getConversation = async ({ name, playerId }) => {
 		})
 		.catch(console.error)
 
-	conversation = userConversations.channels.find((channel) => {
-		return channel.name === name
-	})
+	conversation =
+		userConversations &&
+		userConversations.channels.find((channel) => {
+			return channel.name === name
+		})
 
 	if (!conversation) {
 		console.debug('🦄 Slack conversation channel not found. This is fine.')
