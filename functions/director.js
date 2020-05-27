@@ -302,9 +302,9 @@ exports.handler = async (request) => {
 	}
 
 	const payload = JSON.parse(request.body)
-	const { type, team } = payload
+	const { type, team_id } = payload
 
-	if (!team) {
+	if (!team_id) {
 		console.warn(`🤔 Error: team not found.`)
 		console.debug({ ...payload })
 	}
@@ -314,7 +314,7 @@ exports.handler = async (request) => {
 			site_id: NETLIFY_PLAYWRITE_SITE_ID,
 		})
 		.catch(console.error)
-	const { access_token } = siteMetaData[team.id]
+	const { access_token } = siteMetaData[team_id]
 
 	if (!access_token) {
 		console.warn(`🤔 Error: access_token not found.`)
