@@ -44,4 +44,5 @@ const getAbslact = ({ access_token }) => {
 		getUser: (arguments) => getUser({ slackWebClient, ...arguments }),
 	}
 }
+
 module.exports = { getAbslact }

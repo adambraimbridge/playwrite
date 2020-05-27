@@ -1,4 +1,4 @@
-const { getUser, getConversation } = require('../lib/@adambraimbridge/abslackt')
+const { getUser, getConversation } = require('../lib/abslackt')
 
 const plays = [
 	require('./ltv-in-the-jungle'), //

@@ -2,7 +2,7 @@ const { PLAYWRITE_API_KEY, NETLIFY_AUTH_TOKEN, NETLIFY_PLAYWRITE_SITE_ID } = pro
 const NetlifyAPI = require('netlify')
 const netlifyClient = new NetlifyAPI(NETLIFY_AUTH_TOKEN)
 
-const { getAbslackt } = require('./lib/@adambraimbridge/abslackt')
+const { getAbslackt } = require('./lib/abslackt')
 const { getRandomTagline } = require('./lib/branding')
 const { getPlay, getPlayBlocks } = require('./plays')
 
@@ -139,7 +139,7 @@ const handleBlockActions = async ({ abslackt, payload }) => {
 		return false
 	}
 
-	const nowShowing = await abslackt.getPlay({ playId })
+	const nowShowing = await getPlay({ playId })
 	if (!nowShowing) {
 		console.warn(`🐶 Play not found for "${playId}".`)
 		return false
@@ -266,7 +266,7 @@ const handleBlockActions = async ({ abslackt, payload }) => {
 		// @todo handle the end of the play if appropriate
 		if (!nextLine) console.warn('🐶 Next line not found.')
 
-		await abslackt.deliverModal({
+		await deliverModal({
 			view_id: view.id,
 			view: {
 				type: 'modal',
