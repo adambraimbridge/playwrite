@@ -2,16 +2,7 @@ const { PLAYWRITE_API_KEY, NETLIFY_AUTH_TOKEN, NETLIFY_PLAYWRITE_SITE_ID } = pro
 const NetlifyAPI = require('netlify')
 const netlifyClient = new NetlifyAPI(NETLIFY_AUTH_TOKEN)
 
-const {
-	publish, //
-	spawnModal,
-	updateModal,
-	sendMessages,
-	getConversation,
-	createConversation,
-	yeetConversation,
-	getUser,
-} = require('./lib/@adambraimbridge/abslackt')
+const { getAbslackt } = require('./lib/@adambraimbridge/abslackt')
 const { getRandomTagline } = require('./lib/branding')
 const { getPlay, getPlayBlocks } = require('./plays')
 
@@ -307,7 +298,6 @@ exports.handler = async (request) => {
 	const teamId = team_id ? team_id : team.id
 	if (!teamId) {
 		console.warn(`🤔 Error: team not found.`)
-		console.debug({ ...payload })
 		return {
 			statusCode: 200,
 			body: '',
@@ -329,10 +319,11 @@ exports.handler = async (request) => {
 			body: '',
 		}
 	}
+	const abslackt = getAbslackt({ access_token })
 
 	console.debug(`🦄 Event type: ${type}`)
 	if (type === 'block_actions') {
-		await handleBlockActions({ payload }).catch(console.error)
+		await handleBlockActions({ abslackt, payload }).catch(console.error)
 	}
 
 	// if (type === 'view_submission') {
@@ -340,7 +331,7 @@ exports.handler = async (request) => {
 	// }
 
 	const user_id = payload.event ? payload.event.user : payload.user.id
-	await updateHomepage({ access_token, user_id }).catch(console.error)
+	await updateHomepage({ abslackt, user_id }).catch(console.error)
 
 	return {
 		statusCode: 200,

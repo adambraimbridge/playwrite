@@ -1,5 +1,5 @@
 /**
- * abslackt == "[A]dam + [B]raimbridge + "[Slack] + abstrac[t]"
+ * abslackt == "[A]dam + [B]raimbridge + "[Slack] + abstrac[t]ion"
  */
 const { WebClient } = require('@slack/web-api')
 const { spawnModal, updateModal } = require('./modals')
@@ -26,19 +26,22 @@ const getPayload = ({ body }) => {
 }
 
 // Publish to the App home page for the user.
-const publish = async ({ access_token, user_id, view }) => {
-	const slackWebClient = new WebClient(access_token)
+const publish = async ({ slackWebClient, user_id, view }) => {
 	await slackWebClient.views.publish({ user_id, view })
 }
 
-module.exports = {
-	getPayload,
-	publish,
-	spawnModal,
-	updateModal,
-	sendMessages,
-	getConversation,
-	createConversation,
-	yeetConversation,
-	getUser,
+const getAbslact = ({ access_token }) => {
+	const slackWebClient = new WebClient(access_token)
+	return {
+		getPayload,
+		publish: (arguments) => publish({ slackWebClient, ...arguments }),
+		spawnModal: (arguments) => spawnModal({ slackWebClient, ...arguments }),
+		updateModal: (arguments) => updateModal({ slackWebClient, ...arguments }),
+		sendMessages: (arguments) => sendMessages({ slackWebClient, ...arguments }),
+		getConversation: (arguments) => getConversation({ slackWebClient, ...arguments }),
+		createConversation: (arguments) => createConversation({ slackWebClient, ...arguments }),
+		yeetConversation: (arguments) => yeetConversation({ slackWebClient, ...arguments }),
+		getUser: (arguments) => getUser({ slackWebClient, ...arguments }),
+	}
 }
+module.exports = { getAbslact }
