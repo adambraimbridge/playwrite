@@ -306,12 +306,14 @@ exports.handler = async (request) => {
 		.catch(console.error)
 
 	const payload = JSON.parse(request.body)
-	const { type, team_id } = payload
+	const { type, team } = payload
 	console.debug(`🦄 Event type: ${type}`)
 
-	console.log({ ...payload })
-	console.log({ team_id, siteMetaData })
-	const { access_token } = siteMetaData[team_id]
+	if (!team || !team.id) {
+		console.warn({ ...payload })
+	}
+
+	const { access_token } = siteMetaData[team.id]
 	process.env.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN = access_token
 
 	if (type === 'block_actions') {
