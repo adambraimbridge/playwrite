@@ -303,6 +303,7 @@ exports.handler = async (request) => {
 		.getSiteMetadata({
 			site_id: NETLIFY_PLAYWRITE_SITE_ID,
 		})
+		.catch(console.error)
 
 	const payload = JSON.parse(request.body)
 	const { type, team_id } = payload
