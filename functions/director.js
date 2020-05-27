@@ -302,11 +302,16 @@ exports.handler = async (request) => {
 	}
 
 	const payload = JSON.parse(request.body)
-	const { type, team_id } = payload
+	const { type, team, team_id } = payload
 
-	if (!team_id) {
+	const teamId = team_id ? team_id : team.id
+	if (!teamId) {
 		console.warn(`🤔 Error: team not found.`)
 		console.debug({ ...payload })
+		return {
+			statusCode: 200,
+			body: '',
+		}
 	}
 
 	const siteMetaData = await netlifyClient //
@@ -319,6 +324,10 @@ exports.handler = async (request) => {
 	if (!access_token) {
 		console.warn(`🤔 Error: access_token not found.`)
 		console.debug({ ...siteMetaData })
+		return {
+			statusCode: 200,
+			body: '',
+		}
 	}
 
 	console.debug(`🦄 Event type: ${type}`)
