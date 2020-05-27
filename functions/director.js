@@ -321,7 +321,7 @@ exports.handler = async (request) => {
 	// }
 
 	const user_id = payload.event ? payload.event.user : payload.user.id
-	updateHomepage({ user_id }).catch(console.error)
+	await updateHomepage({ user_id }).catch(console.error)
 
 	return {
 		statusCode: 200,
