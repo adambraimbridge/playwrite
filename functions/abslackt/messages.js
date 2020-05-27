@@ -1,12 +1,9 @@
-const { WebClient } = require('@slack/web-api')
-const slackWebClient = new WebClient(process.env.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN)
-
 const delay = (milliseconds) => {
 	return new Promise((resolve) => setTimeout(() => resolve(), milliseconds))
 }
 
 // @see https://api.slack.com/methods/chat.scheduleMessage
-const sendMessages = async ({ skipDelay, playId, cast, messages, currentLineNumber, conversation }) => {
+const sendMessages = async ({ slackWebClient, skipDelay, playId, cast, messages, currentLineNumber, conversation }) => {
 	console.debug(`🦄 Sending messages. Lines #${currentLineNumber} to #${currentLineNumber + messages.length}.`)
 	const messageStub = {
 		channel: conversation.id,

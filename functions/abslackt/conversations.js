@@ -1,8 +1,5 @@
-const { WebClient } = require('@slack/web-api')
-const slackWebClient = new WebClient(process.env.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN)
-
 // @see https://api.slack.com/docs/conversations-api
-const getConversation = async ({ name, playerId }) => {
+const getConversation = async ({ slackWebClient, name, playerId }) => {
 	let conversation
 	console.debug(`🦄 Searching for conversation #${name} ... `)
 	const userConversations = await slackWebClient.users //
