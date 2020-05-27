@@ -11,7 +11,7 @@ const play = {
 	id: 'ltv-in-the-jungle',
 	title: 'LTV in the Jungle',
 	description: 'A fast-paced action adventure pitting you against the wild.',
-	score: ':star: :star: :star: :star:',
+	score: '★★★★☆',
 	duration: 'Less than five minutes',
 }
 
