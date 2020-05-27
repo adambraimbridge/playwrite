@@ -6,7 +6,7 @@ const { getAbslackt } = require('./lib/@adambraimbridge/abslackt')
 const { getRandomTagline } = require('./lib/branding')
 const { getPlay, getPlayBlocks } = require('./plays')
 
-const updateHomepage = async ({ access_token, user_id }) => {
+const updateHomepage = async ({ abslackt, user_id }) => {
 	console.debug(`🦄 Updating homepage for user #${user_id}`)
 	const blocks = await getPlayBlocks({ user_id })
 	const randomTagline = getRandomTagline()
@@ -20,7 +20,7 @@ const updateHomepage = async ({ access_token, user_id }) => {
 		],
 	})
 
-	publish({
+	await abslackt.publish({
 		access_token,
 		user_id,
 		view: {
@@ -30,7 +30,7 @@ const updateHomepage = async ({ access_token, user_id }) => {
 	})
 }
 
-const deliverModal = ({ view_id, view, playId, currentLine, nextLine, nextLineNumber, homepageUrl }) => {
+const deliverModal = async ({ abslackt, view_id, view, playId, currentLine, nextLine, nextLineNumber, homepageUrl }) => {
 	const blocks = []
 
 	// Image block
@@ -92,19 +92,21 @@ const deliverModal = ({ view_id, view, playId, currentLine, nextLine, nextLineNu
 	})
 
 	view.blocks = blocks
-	updateModal({
-		view_id,
-		view,
-	}).catch(console.error)
+	await abslackt
+		.updateModal({
+			view_id,
+			view,
+		})
+		.catch(console.error)
 }
 
-const deliverMessages = async ({ playId, cast, transcript, currentLineNumber, conversation }) => {
+const deliverMessages = async ({ abslackt, playId, cast, transcript, currentLineNumber, conversation }) => {
 	// Get the list of messages from currentLineNumber to the next interaction cue.
 	const unplayedMessages = transcript.slice(currentLineNumber, transcript.length)
 	const nextInteractionCue = unplayedMessages.findIndex((line) => line.interactionCue === true) + 1 // include the interaction-cue message.
 	const messageCount = nextInteractionCue ? nextInteractionCue : unplayedMessages.length
 	const messages = unplayedMessages.slice(0, messageCount)
-	sendMessages({
+	await abslackt.sendMessages({
 		playId,
 		cast,
 		messages,
@@ -113,7 +115,7 @@ const deliverMessages = async ({ playId, cast, transcript, currentLineNumber, co
 	})
 }
 
-const handleBlockActions = async ({ payload }) => {
+const handleBlockActions = async ({ abslackt, payload }) => {
 	const { action_id: action, block_id: playId, value } = payload.actions[0]
 	console.debug(`🦄 Action = ${action}`)
 	if (
@@ -137,7 +139,7 @@ const handleBlockActions = async ({ payload }) => {
 		return false
 	}
 
-	const nowShowing = await getPlay({ playId })
+	const nowShowing = await abslackt.getPlay({ playId })
 	if (!nowShowing) {
 		console.warn(`🐶 Play not found for "${playId}".`)
 		return false
@@ -148,42 +150,43 @@ const handleBlockActions = async ({ payload }) => {
 	// The subsequent view id can thereafter be used for modal updates (within a few hours)
 	let view = payload.view
 	if (action === 'play') {
-		const response = await spawnModal({
-			trigger_id: payload.trigger_id,
-			view: {
-				callback_id: playId,
-				type: 'modal',
-				title: {
-					type: 'plain_text',
-					text: title,
-					emoji: true,
-				},
-				blocks: [
-					{
-						type: 'image',
-						image_url: 'https://upload.wikimedia.org/wikipedia/commons/5/53/Loading-red-spot.gif',
-						alt_text: 'Loading ... [Attribution: Baharboloor25 / CC BY-SA (https://creativecommons.org/licenses/by-sa/4.0)]',
+		const response = await abslackt
+			.spawnModal({
+				trigger_id: payload.trigger_id,
+				view: {
+					callback_id: playId,
+					type: 'modal',
+					title: {
+						type: 'plain_text',
+						text: title,
+						emoji: true,
 					},
-				],
-			},
-		}).catch(console.error)
+					blocks: [
+						{
+							type: 'image',
+							image_url: 'https://upload.wikimedia.org/wikipedia/commons/5/53/Loading-red-spot.gif',
+							alt_text: 'Loading ... [Attribution: Baharboloor25 / CC BY-SA (https://creativecommons.org/licenses/by-sa/4.0)]',
+						},
+					],
+				},
+			})
+			.catch(console.error)
 		view = response.view
 	}
 
-	const player = await getUser({ user: payload.user.id })
-	const conversationName = `${playId}-${player.id}`.toLowerCase()
-	const { id: playerId } = await getUser({ user: payload.user.id })
+	const { id: playerId } = await abslackt.getUser({ user: payload.user.id })
+	const conversationName = `${playId}-${playerId}`.toLowerCase()
 	const details = {
 		name: conversationName,
 		playerId,
 	}
 
 	let conversation
-	const existing = await getConversation(details)
+	const existing = await abslackt.getConversation(details)
 	if (!!existing) {
 		conversation = existing.conversation
 	} else {
-		const created = await createConversation(details)
+		const created = await abslackt.createConversation(details)
 		conversation = created.conversation
 	}
 
@@ -209,12 +212,10 @@ const handleBlockActions = async ({ payload }) => {
 		const { lineNumber, optionNumber } = JSON.parse(value)
 		const { options } = transcript[lineNumber]
 
-		console.log({ lineNumber, options })
-
 		const selectedOption = options[optionNumber]
 		const messages = [selectedOption.response]
 
-		sendMessages({
+		await abslackt.sendMessages({
 			skipDelay: true, // @note skip the "fake typing" delay
 			playId,
 			cast,
@@ -230,7 +231,7 @@ const handleBlockActions = async ({ payload }) => {
 		}
 	} else if (action === 'restart') {
 		console.debug('🦄 Restart by yeeting the appropriate channel.')
-		await yeetConversation({
+		await abslackt.yeetConversation({
 			name: conversationName,
 			id: value,
 		})
@@ -247,7 +248,8 @@ const handleBlockActions = async ({ payload }) => {
 
 	const { type } = currentLine
 	if (type === 'message') {
-		deliverMessages({
+		await deliverMessages({
+			abslackt,
 			playId,
 			cast,
 			transcript,
@@ -264,7 +266,7 @@ const handleBlockActions = async ({ payload }) => {
 		// @todo handle the end of the play if appropriate
 		if (!nextLine) console.warn('🐶 Next line not found.')
 
-		deliverModal({
+		await abslackt.deliverModal({
 			view_id: view.id,
 			view: {
 				type: 'modal',
@@ -289,6 +291,7 @@ exports.handler = async (request) => {
 		console.warn('🤔 Incorrect or missing x-playwrite-api-key')
 		return {
 			statusCode: 500,
+			body: '🤔 Incorrect or missing key',
 		}
 	}
 
