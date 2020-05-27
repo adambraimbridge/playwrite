@@ -50,6 +50,7 @@ exports.handler = async (request) => {
 			}
 		})
 
+	console.log({ ...response })
 	if (!response || !response.ok) {
 		return {
 			statusCode: 500,
