@@ -1,3 +1,6 @@
+const { PLAYWRITE_API_KEY, NETLIFY_AUTH_TOKEN, NETLIFY_PLAYWRITE_SITE_ID } = process.env
+const NetlifyAPI = require('netlify')
+const netlifyClient = new NetlifyAPI(NETLIFY_AUTH_TOKEN)
 const {
 	publish, //
 	spawnModal,
@@ -289,16 +292,24 @@ const handleViewSubmissions = ({ payload }) => {
 }
 
 exports.handler = async (request) => {
-	if (!request.headers['x-playwrite-api-key'] || request.headers['x-playwrite-api-key'] !== process.env.PLAYWRITE_API_KEY) {
+	if (!request.headers['x-playwrite-api-key'] || request.headers['x-playwrite-api-key'] !== PLAYWRITE_API_KEY) {
 		console.warn('🤔 Incorrect or missing x-playwrite-api-key')
 		return {
 			statusCode: 500,
 		}
 	}
 
+	const siteMetaData = await netlifyClient //
+		.getSiteMetadata({
+			site_id: NETLIFY_PLAYWRITE_SITE_ID,
+		})
+
 	const payload = JSON.parse(request.body)
-	const { type } = payload
+	const { type, team_id } = payload
 	console.debug(`🦄 Event type: ${type}`)
+
+	const { access_token } = siteMetaData[team_id]
+	process.env.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN = access_token
 
 	if (type === 'block_actions') {
 		await handleBlockActions({ payload }).catch(console.error)
