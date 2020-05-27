@@ -11,7 +11,7 @@ const SITE_HOST = 'https://playwrite.netlify.app'
 exports.handler = async (request) => {
 	// Always respond with a 200 (OK) response, to let Slack know their post was received.
 	// because otherwise it will time out, and Slack keeps resending the event.
-	// (Note: your HTTP 200 response must be empty for this step to complete successfully.)
+	// (Note: HTTP 200 response must be empty for this step to complete successfully.)
 	// ^ @see https://api.slack.com/surfaces/modals/using#interactions#close_current_view
 	const response = {
 		statusCode: 200,
