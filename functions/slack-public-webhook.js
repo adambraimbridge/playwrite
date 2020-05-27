@@ -1,5 +1,6 @@
 const axios = require('axios')
 const { getPayload } = require('./lib/@adambraimbridge/abslackt')
+const SITE_HOST = 'https://playwrite.netlify.app'
 
 /**
  * Slack Public Webhook
@@ -25,9 +26,8 @@ exports.handler = async (request) => {
 		if (!!challenge && !!type && type === 'url_verification') {
 			response.body = challenge
 		} else {
-			const HOST = 'https://playwrite.ngrok.io'
 			const path = '/.netlify/functions/director'
-			axios.post(`${HOST}${path}`, payload, {
+			axios.post(`${SITE_HOST}${path}`, payload, {
 				headers: {
 					'x-playwrite-api-key': process.env.PLAYWRITE_API_KEY,
 				},
