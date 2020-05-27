@@ -13,6 +13,8 @@ const getConversation = async ({ name, playerId }) => {
 		})
 		.catch(console.error)
 
+	console.debug({ userConversations })
+
 	conversation =
 		userConversations &&
 		userConversations.channels.find((channel) => {
