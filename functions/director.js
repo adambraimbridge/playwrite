@@ -303,6 +303,12 @@ exports.handler = async (request) => {
 
 	const payload = JSON.parse(request.body)
 	const { type, team } = payload
+
+	if (!team) {
+		console.warn(`🤔 Error: team not found.`)
+		console.debug({ ...payload })
+	}
+
 	const siteMetaData = await netlifyClient //
 		.getSiteMetadata({
 			site_id: NETLIFY_PLAYWRITE_SITE_ID,
