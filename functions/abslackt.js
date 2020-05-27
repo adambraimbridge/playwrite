@@ -2,10 +2,10 @@
  * abslackt == "[A]dam + [B]raimbridge + "[Slack] + abstrac[t]ion"
  */
 const { WebClient } = require('@slack/web-api')
-const { spawnModal, updateModal } = require('./modals')
-const { sendMessages } = require('./messages')
-const { getConversation, createConversation, yeetConversation } = require('./conversations')
-const { getUser } = require('./users')
+const { spawnModal, updateModal } = require('./abslackt/modals')
+const { sendMessages } = require('./abslackt/messages')
+const { getConversation, createConversation, yeetConversation } = require('./abslackt/conversations')
+const { getUser } = require('./abslackt/users')
 
 /**
  * The payload is different depending on what Slack sends.
