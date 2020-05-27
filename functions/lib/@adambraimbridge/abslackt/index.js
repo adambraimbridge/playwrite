@@ -8,6 +8,8 @@ const { sendMessages } = require('./messages')
 const { getConversation, createConversation, yeetConversation } = require('./conversations')
 const { getUser } = require('./users')
 
+console.log('XXXXXXX', process.env.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN)
+
 /**
  * The payload is different depending on what Slack sends.
  * This function normalises the payload from a string to a json object.
