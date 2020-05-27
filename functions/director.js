@@ -308,6 +308,7 @@ exports.handler = async (request) => {
 	const { type, team_id } = payload
 	console.debug(`🦄 Event type: ${type}`)
 
+	console.log({ team_id, siteMetaData })
 	const { access_token } = siteMetaData[team_id]
 	process.env.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN = access_token
 
