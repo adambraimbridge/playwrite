@@ -14,7 +14,13 @@ exports.handler = async (request) => {
 			client_id: SLACK_CLIENT_ID,
 			client_secret: SLACK_CLIENT_SECRET,
 		})
-		.catch(console.error)
+		.catch((error) => {
+			return {
+				statusCode: 500,
+				body: error.message,
+			}
+		})
+
 	if (!oauthResponse || !oauthResponse.ok) {
 		return {
 			statusCode: 500,
@@ -33,7 +39,13 @@ exports.handler = async (request) => {
 			site_id: NETLIFY_PLAYWRITE_SITE_ID,
 			body: JSON.stringify(siteMetaData),
 		})
-		.catch(console.error)
+		.catch((error) => {
+			return {
+				statusCode: 500,
+				body: error.message,
+			}
+		})
+
 	if (!response || !response.ok) {
 		return {
 			statusCode: 500,
