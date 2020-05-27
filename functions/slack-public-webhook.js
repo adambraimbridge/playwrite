@@ -26,7 +26,7 @@ exports.handler = async (request) => {
 		if (!!challenge && !!type && type === 'url_verification') {
 			response.body = challenge
 		} else {
-			console.debug(`🦄 Action`)
+			console.debug(`🦄 Action! Cue ${SITE_HOST}${path}`)
 			const path = '/.netlify/functions/director'
 			axios.post(`${SITE_HOST}${path}`, payload, {
 				headers: {
