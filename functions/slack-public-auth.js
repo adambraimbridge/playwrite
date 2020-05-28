@@ -1,6 +1,5 @@
 const { SLACK_CLIENT_ID, SLACK_CLIENT_SECRET, NETLIFY_AUTH_TOKEN, NETLIFY_PLAYWRITE_SITE_ID } = process.env
 const { WebClient } = require('@slack/web-api')
-const slackWebClient = new WebClient()
 const NetlifyAPI = require('netlify')
 const netlifyClient = new NetlifyAPI(NETLIFY_AUTH_TOKEN)
 
@@ -9,6 +8,7 @@ const netlifyClient = new NetlifyAPI(NETLIFY_AUTH_TOKEN)
 exports.handler = async (request) => {
 	console.log(`🦄 Slack app auth`)
 	const { code } = request.queryStringParameters
+	const slackWebClient = new WebClient()
 	const oauthResponse = await slackWebClient.oauth.v2 //
 		.access({
 			code,
