@@ -1,5 +1,3 @@
-const { getUser, getConversation } = require('../abslackt')
-
 const plays = [
 	require('./ltv-in-the-jungle'), //
 	// require('./journalist-or-pugilist'),
@@ -12,7 +10,7 @@ const getPlay = async ({ playId }) => {
 }
 
 // Generate the Slack markup to show the plays on the app homepage.
-const getPlayBlocks = async ({ user_id }) => {
+const getPlayBlocks = async ({ abslackt, user_id }) => {
 	console.debug(`🦄 Getting playblocks`)
 	return plays.reduce(async (accumulator, { id, title, author, description, score, duration }) => {
 		const elements = []
@@ -67,7 +65,7 @@ const getPlayBlocks = async ({ user_id }) => {
 		})
 
 		if (!!author) {
-			const { profile } = await getUser({ user: author })
+			const { profile } = await abslackt.getUser({ user: author })
 			const { real_name, image_512: image_url } = profile
 			if (!!real_name && !!image_url) {
 				accumulator.push({

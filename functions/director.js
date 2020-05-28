@@ -2,7 +2,7 @@ const { PLAYWRITE_API_KEY, NETLIFY_AUTH_TOKEN, NETLIFY_PLAYWRITE_SITE_ID } = pro
 const NetlifyAPI = require('netlify')
 const netlifyClient = new NetlifyAPI(NETLIFY_AUTH_TOKEN)
 
-const { getAbslackt } = require('./abslackt')
+const { getAbslackt } = require('./lib/abslackt')
 const { getRandomTagline } = require('./branding')
 const { getPlay, getPlayBlocks } = require('./plays')
 
