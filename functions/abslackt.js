@@ -30,7 +30,7 @@ const publish = async ({ slackWebClient, user_id, view }) => {
 	await slackWebClient.views.publish({ user_id, view })
 }
 
-const getAbslact = ({ access_token }) => {
+const getAbslackt = ({ access_token }) => {
 	const slackWebClient = new WebClient(access_token)
 	return {
 		getPayload,
@@ -45,4 +45,4 @@ const getAbslact = ({ access_token }) => {
 	}
 }
 
-module.exports = { getAbslact }
+module.exports = { getAbslackt }
