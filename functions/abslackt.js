@@ -33,7 +33,6 @@ const publish = async ({ slackWebClient, user_id, view }) => {
 const getAbslackt = ({ access_token }) => {
 	const slackWebClient = new WebClient(access_token)
 	return {
-		getPayload,
 		publish: (arguments) => publish({ slackWebClient, ...arguments }),
 		spawnModal: (arguments) => spawnModal({ slackWebClient, ...arguments }),
 		updateModal: (arguments) => updateModal({ slackWebClient, ...arguments }),
@@ -45,4 +44,7 @@ const getAbslackt = ({ access_token }) => {
 	}
 }
 
-module.exports = { getAbslackt }
+module.exports = {
+	getPayload,
+	getAbslackt,
+}
