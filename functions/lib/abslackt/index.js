@@ -1,8 +1,8 @@
 const { WebClient } = require('@slack/web-api')
-const { spawnModal, updateModal } = require('./modals')
-const { sendMessages } = require('./messages')
-const { getConversation, createConversation, yeetConversation } = require('./conversations')
 const { getUser } = require('./users')
+const { sendMessages } = require('./messages')
+const { spawnModal, updateModal } = require('./modals')
+const { getConversation, createConversation, yeetConversation } = require('./conversations')
 
 /**
  * The payload is different depending on what Slack sends.
