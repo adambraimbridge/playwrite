@@ -1,9 +1,6 @@
-/**
- * abslackt == "[A]dam + [B]raimbridge + "[Slack] + abstrac[t]ion"
- */
 const { WebClient } = require('@slack/web-api')
 const { spawnModal, updateModal } = require('./modals')
-const { sendMessages } = require('./abslackt/messages')
+const { sendMessages } = require('./messages')
 const { getConversation, createConversation, yeetConversation } = require('./conversations')
 const { getUser } = require('./users')
 
