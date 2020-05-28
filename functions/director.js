@@ -1,6 +1,6 @@
 const { PLAYWRITE_API_KEY, NETLIFY_AUTH_TOKEN, NETLIFY_PLAYWRITE_SITE_ID } = process.env
-const NetlifyAPI = require('netlify')
-const netlifyClient = new NetlifyAPI(NETLIFY_AUTH_TOKEN)
+// const NetlifyAPI = require('netlify')
+// const netlifyClient = new NetlifyAPI(NETLIFY_AUTH_TOKEN)
 
 const { getAbslackt } = require('./lib/abslackt')
 const { getRandomTagline } = require('./lib/branding')
