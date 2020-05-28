@@ -3,7 +3,7 @@
  */
 const { WebClient } = require('@slack/web-api')
 const { spawnModal, updateModal } = require('./abslackt/modals')
-const { sendMessages } = require('./abslackt/messages')
+const { sendMessages } = require('./abslackt/messages/')
 const { getConversation, createConversation, yeetConversation } = require('./abslackt/conversations')
 const { getUser } = require('./abslackt/users')
 
