@@ -3,8 +3,8 @@ const NetlifyAPI = require('netlify')
 const netlifyClient = new NetlifyAPI(NETLIFY_AUTH_TOKEN)
 
 const { getAbslackt } = require('./lib/abslackt')
-const { getRandomTagline } = require('./branding')
-const { getPlay, getPlayBlocks } = require('./plays')
+const { getRandomTagline } = require('./lib/branding')
+const { getPlay, getPlayBlocks } = require('./lib/plays')
 
 const updateHomepage = async ({ abslackt, user_id }) => {
 	console.debug(`🦄 Updating homepage for user #${user_id}`)
