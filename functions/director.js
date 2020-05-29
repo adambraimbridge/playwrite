@@ -1,6 +1,5 @@
 const { PLAYWRITE_API_KEY, NETLIFY_AUTH_TOKEN, NETLIFY_PLAYWRITE_SITE_ID } = process.env
-// const NetlifyAPI = require('netlify')
-// const netlifyClient = new NetlifyAPI(NETLIFY_AUTH_TOKEN)
+const NetlifyAPI = require('netlify')
 
 const { getAbslackt } = require('./lib/abslackt')
 const { getRandomTagline } = require('./lib/branding')
@@ -8,7 +7,7 @@ const { getPlay, getPlayBlocks } = require('./lib/plays')
 
 const updateHomepage = async ({ abslackt, user_id }) => {
 	console.debug(`🦄 Updating homepage for user #${user_id}`)
-	const blocks = await getPlayBlocks({ user_id })
+	const blocks = await getPlayBlocks({ abslackt, user_id })
 	const randomTagline = getRandomTagline()
 	blocks.push({
 		type: 'context',
@@ -21,13 +20,37 @@ const updateHomepage = async ({ abslackt, user_id }) => {
 	})
 
 	await abslackt.publish({
-		access_token,
 		user_id,
 		view: {
 			type: 'home',
 			blocks,
 		},
 	})
+}
+
+const getModal = async ({ trigger_id }) => {
+	const { view } = await abslackt
+		.spawnModal({
+			trigger_id,
+			view: {
+				callback_id: 'playwrite',
+				type: 'modal',
+				title: {
+					type: 'plain_text',
+					text: 'Playwrite',
+					emoji: true,
+				},
+				blocks: [
+					{
+						type: 'image',
+						image_url: 'https://upload.wikimedia.org/wikipedia/commons/5/53/Loading-red-spot.gif',
+						alt_text: 'Loading ... [Attribution: Baharboloor25 / CC BY-SA (https://creativecommons.org/licenses/by-sa/4.0)]',
+					},
+				],
+			},
+		})
+		.catch(console.error)
+	return view
 }
 
 const deliverModal = async ({ abslackt, view_id, view, playId, currentLine, nextLine, nextLineNumber, homepageUrl }) => {
@@ -139,42 +162,17 @@ const handleBlockActions = async ({ abslackt, payload }) => {
 		return false
 	}
 
+	// `trigger_id` must be used within 500ms. in this case, it is needed to spawn a modal view.
+	// The subsequent view id can thereafter be used for modal updates (within a few hours)
+	const view = action === 'play' ? await getModal({ trigger_id: payload.trigger_id }) : payload.view
+
 	const nowShowing = await getPlay({ playId })
 	if (!nowShowing) {
 		console.warn(`🐶 Play not found for "${playId}".`)
 		return false
 	}
 	const { title, cast, getTranscript } = nowShowing
-
-	// `trigger_id` must be used within 500ms. in this case, it is needed to spawn a modal view.
-	// The subsequent view id can thereafter be used for modal updates (within a few hours)
-	let view = payload.view
-	if (action === 'play') {
-		const response = await abslackt
-			.spawnModal({
-				trigger_id: payload.trigger_id,
-				view: {
-					callback_id: playId,
-					type: 'modal',
-					title: {
-						type: 'plain_text',
-						text: title,
-						emoji: true,
-					},
-					blocks: [
-						{
-							type: 'image',
-							image_url: 'https://upload.wikimedia.org/wikipedia/commons/5/53/Loading-red-spot.gif',
-							alt_text: 'Loading ... [Attribution: Baharboloor25 / CC BY-SA (https://creativecommons.org/licenses/by-sa/4.0)]',
-						},
-					],
-				},
-			})
-			.catch(console.error)
-		view = response.view
-	}
-
-	const { id: playerId } = await abslackt.getUser({ user: payload.user.id })
+	const { id: playerId, profile } = await abslackt.getUser({ user: payload.user.id })
 	const conversationName = `${playId}-${playerId}`.toLowerCase()
 	const details = {
 		name: conversationName,
@@ -193,14 +191,14 @@ const handleBlockActions = async ({ abslackt, payload }) => {
 	// Let the player join the cast
 	// @todo figure out how to display the player's avatar
 	// @see https://api.slack.com/methods/chat.postMessage#arg_icon_url
-	if (cast) {
-		const { real_name } = player.profile
-		cast.player = {
-			real_name,
-			icon_emoji: ':speaking_head_in_silhouette:',
-		}
+	const { real_name } = profile
+	const player = {
+		real_name,
+		icon_emoji: ':speaking_head_in_silhouette:',
 	}
-
+	if (cast) {
+		cast.player = player
+	}
 	const transcript = getTranscript({ player })
 	let currentLineNumber
 	// If the action was an option in a message,
@@ -267,10 +265,15 @@ const handleBlockActions = async ({ abslackt, payload }) => {
 		if (!nextLine) console.warn('🐶 Next line not found.')
 
 		await deliverModal({
+			abslackt,
 			view_id: view.id,
 			view: {
 				type: 'modal',
-				title: view.title,
+				title: {
+					type: 'plain_text',
+					text: title,
+					emoji: true,
+				},
 				callback_id: view.callback_id,
 			},
 			playId,
@@ -307,13 +310,23 @@ exports.handler = async (request) => {
 		}
 	}
 
+	console.debug(`🦄 Event type: ${type}`)
+	if (type === 'block_actions') {
+		await handleBlockActions({ abslackt, payload }).catch(console.error)
+	}
+
+	// if (type === 'view_submission') {
+	// 	await handleViewSubmissions({ payload }).catch(console.error)
+	// }
+
+	const netlifyClient = new NetlifyAPI(NETLIFY_AUTH_TOKEN)
 	const siteMetaData = await netlifyClient //
 		.getSiteMetadata({
 			site_id: NETLIFY_PLAYWRITE_SITE_ID,
 		})
 		.catch(console.error)
-	const { access_token } = siteMetaData[team_id]
 
+	const { access_token } = siteMetaData[teamId]
 	if (!access_token) {
 		console.warn(`🤔 Error: access_token not found.`)
 		console.debug({ ...siteMetaData })
@@ -323,15 +336,6 @@ exports.handler = async (request) => {
 		}
 	}
 	const abslackt = getAbslackt({ access_token })
-
-	console.debug(`🦄 Event type: ${type}`)
-	if (type === 'block_actions') {
-		await handleBlockActions({ abslackt, payload }).catch(console.error)
-	}
-
-	// if (type === 'view_submission') {
-	// 	await handleViewSubmissions({ payload }).catch(console.error)
-	// }
 
 	const user_id = payload.event ? payload.event.user : payload.user.id
 	await updateHomepage({ abslackt, user_id }).catch(console.error)

@@ -30,14 +30,14 @@ const publish = async ({ slackWebClient, user_id, view }) => {
 const getAbslackt = ({ access_token }) => {
 	const slackWebClient = new WebClient(access_token)
 	return {
-		publish: (arguments) => publish({ slackWebClient, ...arguments }),
-		spawnModal: (arguments) => spawnModal({ slackWebClient, ...arguments }),
-		updateModal: (arguments) => updateModal({ slackWebClient, ...arguments }),
-		sendMessages: (arguments) => sendMessages({ slackWebClient, ...arguments }),
-		getConversation: (arguments) => getConversation({ slackWebClient, ...arguments }),
-		createConversation: (arguments) => createConversation({ slackWebClient, ...arguments }),
-		yeetConversation: (arguments) => yeetConversation({ slackWebClient, ...arguments }),
-		getUser: (arguments) => getUser({ slackWebClient, ...arguments }),
+		publish: (args) => publish({ slackWebClient, ...args }),
+		spawnModal: (args) => spawnModal({ slackWebClient, ...args }),
+		updateModal: (args) => updateModal({ slackWebClient, ...args }),
+		sendMessages: (args) => sendMessages({ slackWebClient, ...args }),
+		getConversation: (args) => getConversation({ slackWebClient, ...args }),
+		createConversation: (args) => createConversation({ slackWebClient, ...args }),
+		yeetConversation: (args) => yeetConversation({ slackWebClient, ...args }),
+		getUser: (args) => getUser({ slackWebClient, ...args }),
 	}
 }
 

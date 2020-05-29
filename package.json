@@ -6,7 +6,7 @@
 	"scripts": {
 		"test": "jest",
 		"dev": "clear; netlify dev",
-		"dev-remote": "clear; ngrok http 34567 -subdomain=playwrite"
+		"dev-remote": "clear; ngrok http 8888 -subdomain=playwrite"
 	},
 	"repository": {
 		"type": "git",

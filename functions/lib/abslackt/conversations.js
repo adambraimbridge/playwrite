@@ -6,6 +6,7 @@ const getConversation = async ({ slackWebClient, name, playerId }) => {
 		.conversations({
 			limit: 1000,
 			types: 'private_channel',
+			exclude_archived: true,
 			user: playerId,
 		})
 		.catch(console.error)
@@ -13,7 +14,7 @@ const getConversation = async ({ slackWebClient, name, playerId }) => {
 	conversation =
 		userConversations &&
 		userConversations.channels.find((channel) => {
-			return channel.name === name
+			return RegExp(`^${name}`).test(channel.name)
 		})
 
 	if (!conversation) {
@@ -22,6 +23,7 @@ const getConversation = async ({ slackWebClient, name, playerId }) => {
 	}
 
 	await inviteUser({
+		slackWebClient,
 		channel: conversation.id,
 		users: `${playerId}`,
 	})
@@ -30,7 +32,7 @@ const getConversation = async ({ slackWebClient, name, playerId }) => {
 	}
 }
 
-const createConversation = async ({ name, playerId }) => {
+const createConversation = async ({ slackWebClient, name, playerId }) => {
 	const result = await slackWebClient.conversations //
 		.create({
 			name,
@@ -47,6 +49,7 @@ const createConversation = async ({ name, playerId }) => {
 		})
 	conversation = result.channel
 	await inviteUser({
+		slackWebClient,
 		channel: conversation.id,
 		users: `${playerId}`,
 	})
@@ -56,7 +59,7 @@ const createConversation = async ({ name, playerId }) => {
 }
 
 // @todo Check that the conversation hasn't been deleted/archived/abandoned ..?
-const inviteUser = async ({ channel, users }) => {
+const inviteUser = async ({ slackWebClient, channel, users }) => {
 	console.log(`🦄 Inviting user #${users} to the conversation`)
 	await slackWebClient.conversations //
 		.invite({
@@ -69,7 +72,7 @@ const inviteUser = async ({ channel, users }) => {
 // It's not possible to delete conversations via Slack API
 // And it's not possible to delete 100% of messages from a conversation.
 // So yeeting === rename then archive channel.
-const yeetConversation = async ({ name, id }) => {
+const yeetConversation = async ({ slackWebClient, name, id }) => {
 	console.debug(`🦄 Yeeting conversation ${id} ... `)
 	await slackWebClient.conversations //
 		.rename({

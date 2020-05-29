@@ -15,7 +15,7 @@ const getPlayBlocks = async ({ abslackt, user_id }) => {
 	return plays.reduce(async (accumulator, { id, title, author, description, score, duration }) => {
 		const elements = []
 		const conversationName = `${id}-${user_id}`.toLowerCase()
-		const existing = await getConversation({
+		const existing = await abslackt.getConversation({
 			name: conversationName,
 			playerId: user_id,
 		})
