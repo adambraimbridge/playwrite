@@ -28,7 +28,7 @@ const updateHomepage = async ({ abslackt, user_id }) => {
 	})
 }
 
-const getModal = async ({ trigger_id }) => {
+const getModal = async ({ abslackt, trigger_id }) => {
 	const { view } = await abslackt
 		.spawnModal({
 			trigger_id,
@@ -285,7 +285,7 @@ const handleBlockActions = async ({ abslackt, payload }) => {
 	}
 }
 
-const handleViewSubmissions = ({ payload }) => {
+const handleViewSubmissions = ({ abslackt, payload }) => {
 	// @todo ^ this.
 }
 
@@ -310,15 +310,6 @@ exports.handler = async (request) => {
 		}
 	}
 
-	console.debug(`🦄 Event type: ${type}`)
-	if (type === 'block_actions') {
-		await handleBlockActions({ abslackt, payload }).catch(console.error)
-	}
-
-	// if (type === 'view_submission') {
-	// 	await handleViewSubmissions({ payload }).catch(console.error)
-	// }
-
 	const netlifyClient = new NetlifyAPI(NETLIFY_AUTH_TOKEN)
 	const siteMetaData = await netlifyClient //
 		.getSiteMetadata({
@@ -336,6 +327,15 @@ exports.handler = async (request) => {
 		}
 	}
 	const abslackt = getAbslackt({ access_token })
+
+	console.debug(`🦄 Event type: ${type}`)
+	if (type === 'block_actions') {
+		await handleBlockActions({ abslackt, payload }).catch(console.error)
+	}
+
+	// if (type === 'view_submission') {
+	// 	await handleViewSubmissions({ abslackt, payload }).catch(console.error)
+	// }
 
 	const user_id = payload.event ? payload.event.user : payload.user.id
 	await updateHomepage({ abslackt, user_id }).catch(console.error)

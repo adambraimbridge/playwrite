@@ -1,5 +1,5 @@
 const axios = require('axios')
-const SITE_HOST = 'https://playwrite.netlify.app'
+const SITE_HOST = process.env.NETLIFY_DEV === 'true' ? 'https://playwrite.ngrok.io' : 'https://playwrite.netlify.app'
 const { getPayload } = require('./lib/abslackt')
 /**
  * Slack Public Webhook
