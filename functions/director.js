@@ -17,6 +17,7 @@ const getConversation = async ({ abslackt, name, playerId }) => {
 	}
 	return { conversation }
 }
+
 const updateHomepage = async ({ abslackt, user_id }) => {
 	console.debug(`🦄 Updating homepage for user #${user_id}`)
 	const blocks = await getPlayBlocks({ abslackt, user_id })
@@ -135,20 +136,11 @@ const deliverModal = async ({ abslackt, view_id, view, playId, currentLine, next
 		.catch(console.error)
 }
 
-const sendMessage = ({ messageData }) => {
-	console.debug(`🦄 Sending message: ${type}`)
-	const path = '/.netlify/functions/post-message'
-	axios.post(`${SITE_HOST}${path}`, messageData, {
-		headers: {
-			'x-playwrite-api-key': PLAYWRITE_API_KEY,
-		},
-	})
-}
-
-const handleBlockActions = async ({ abslackt, payload }) => {
+const handleBlockActions = async ({ access_token, abslackt, payload }) => {
 	const { action_id: action, block_id: playId, value } = payload.actions[0]
 	console.debug(`🦄 Action = ${action}`)
-	const { id: playerId, name: playerName } = await abslackt.getUser({ user: payload.user.id })
+	const user = await abslackt.getUser({ user: payload.user.id })
+	const { id: playerId } = user
 	const conversationName = `${playId}-${playerId}`.toLowerCase()
 
 	if (action === 'restart') {
@@ -197,15 +189,10 @@ const handleBlockActions = async ({ abslackt, payload }) => {
 	}
 	const { title, cast, getTranscript } = nowShowing
 
-	const { conversation } = await getConversation({
-		abslackt,
-		name: conversationName,
-		playerId,
-	})
-
 	// Let the player join the cast
 	// @todo figure out how to display the player's avatar
 	// @see https://api.slack.com/methods/chat.postMessage#arg_icon_url
+	const { name: playerName } = user
 	const player = {
 		real_name: playerName,
 		icon_emoji: ':speaking_head_in_silhouette:',
@@ -216,47 +203,71 @@ const handleBlockActions = async ({ abslackt, payload }) => {
 		cast.player = player
 	}
 
-	console.log(payload)
-	return false
-	const { lineNumber } = JSON.parse(value)
-	const currentLine = transcript[lineNumber ? lineNumber : 0]
+	let currentLineNumber = 0
+	const actionValue = JSON.parse(value)
+	if (!isNaN(currentLineNumber)) {
+		currentLineNumber = actionValue
+	}
+	const currentLine = transcript[currentLineNumber]
 	if (!currentLine) {
-		throw new Error(`🤔 Could not find line #${lineNumber} in ${playId}`)
+		throw new Error(`🤔 Could not find line #${currentLineNumber} in ${playId}`)
 	}
 	const { type } = currentLine
 	if (type === 'message') {
+		console.debug(`🦄 Type: Message. Current line number: ${currentLineNumber}`)
+		let message = currentLine
+		let playNextLine = true
+
 		// If the action was an option in a message,
 		//  1. Find the option in the transcript that matches the`action_id`
-		//  2. Then send the appropriate response message to the channel.
+		//  2. Then send the appropriate response message to the conversation channel.
 		//     @todo handle responses that are modals
 		if (action.includes('option-')) {
-			const { options } = transcript[lineNumber]
+			const { options } = currentLine
 			const { optionNumber } = JSON.parse(value)
 			const selectedOption = options[optionNumber]
-			const { response, playNextLine } = selectedOption
+
+			// @todo
+			console.log({ ...selectedOption })
+
+			const { response } = selectedOption
+			if (selectedOption.playNextLine) playNextLine = selectedOption.playNextLine
 			message = response
-		} else {
-			console.log({ currentLine })
 		}
 
-		// sendMessage({
-		// 	abslackt,
-		// 	playId,
-		// 	cast,
-		// 	message: currentLine,
-		// 	conversation,
-		// 	lineNumber,
-		// 	playNextLine,
-		// })
+		const { conversation } = await getConversation({
+			abslackt,
+			name: conversationName,
+			playerId,
+		})
+
+		console.debug(`🦄 Sending message`)
+		const messageData = {
+			access_token,
+			playId,
+			cast,
+			message,
+			conversation,
+			currentLineNumber,
+			playNextLine,
+		}
+		axios.post(`${SITE_HOST}/.netlify/functions/post-message`, messageData, {
+			headers: {
+				'x-playwrite-api-key': PLAYWRITE_API_KEY,
+			},
+		})
 	}
 
 	if (type === 'modal') {
 		const homepageUrl = `slack://app?team=${payload.team.id}&id=${payload.api_app_id}&tab=home`
-		const nextLineNumber = lineNumber + 1
+		const nextLineNumber = currentLineNumber + 1
 		const nextLine = transcript[nextLineNumber]
+		console.debug(`🦄 Type: Modal. Next line number: ${nextLineNumber}`)
 
 		// @todo handle the end of the play if appropriate
-		if (!nextLine) console.warn('🐶 Next line not found.')
+		if (!nextLine) {
+			console.warn('🐶 Next line not found.')
+		}
 
 		await deliverModal({
 			abslackt,
@@ -324,7 +335,7 @@ exports.handler = async (request) => {
 
 	console.debug(`🦄 Event type: ${type}`)
 	if (type === 'block_actions') {
-		await handleBlockActions({ abslackt, payload }).catch(console.error)
+		await handleBlockActions({ access_token, abslackt, payload }).catch(console.error)
 	}
 
 	if (type === 'view_submission') {

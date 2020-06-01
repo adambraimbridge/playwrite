@@ -1,6 +1,6 @@
 const { WebClient } = require('@slack/web-api')
 const { getUser } = require('./users')
-const { sendMessages } = require('./messages')
+const { postMessage } = require('./messages')
 const { spawnModal, updateModal } = require('./modals')
 const { getConversation, createConversation, yeetConversation } = require('./conversations')
 
@@ -33,7 +33,7 @@ const getAbslackt = ({ access_token }) => {
 		publish: (args) => publish({ slackWebClient, ...args }),
 		spawnModal: (args) => spawnModal({ slackWebClient, ...args }),
 		updateModal: (args) => updateModal({ slackWebClient, ...args }),
-		sendMessages: (args) => sendMessages({ slackWebClient, ...args }),
+		postMessage: (args) => postMessage({ slackWebClient, ...args }),
 		getConversation: (args) => getConversation({ slackWebClient, ...args }),
 		createConversation: (args) => createConversation({ slackWebClient, ...args }),
 		yeetConversation: (args) => yeetConversation({ slackWebClient, ...args }),
