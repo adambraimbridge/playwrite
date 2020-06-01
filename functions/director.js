@@ -136,9 +136,55 @@ const deliverModal = async ({ abslackt, view_id, view, playId, currentLine, next
 		.catch(console.error)
 }
 
+const postNextMessage = async ({ currentLineNumber, currentLine, action, access_token, playId, cast, conversation }) => {
+	console.debug(`🦄 Type: Message. Current line number: ${currentLineNumber}`)
+	let message = currentLine
+	let playNextLine = true
+
+	// If the action was an option in a message,
+	//  1. Find the option in the transcript that matches the`action_id`
+	//  2. Then send the appropriate response message to the conversation channel.
+	//     @todo handle responses that are modals
+	if (!!action && action.includes('option-')) {
+		const { options } = currentLine
+		const { optionNumber } = JSON.parse(value)
+		const selectedOption = options[optionNumber]
+
+		// @todo ...?
+		console.log({ ...selectedOption })
+
+		const { response } = selectedOption
+		if (selectedOption.playNextLine) playNextLine = selectedOption.playNextLine
+		message = response
+	}
+
+	console.debug(`🦄 Sending message`)
+	const messageData = {
+		access_token,
+		playId,
+		cast,
+		message,
+		conversation,
+		currentLineNumber,
+		playNextLine,
+	}
+	axios.post(`${SITE_HOST}/.netlify/functions/post-message`, messageData, {
+		headers: {
+			'x-playwrite-api-key': PLAYWRITE_API_KEY,
+		},
+	})
+}
+
 const handleBlockActions = async ({ access_token, abslackt, payload }) => {
 	const { action_id: action, block_id: playId, value } = payload.actions[0]
 	console.debug(`🦄 Action = ${action}`)
+
+	const nowShowing = await getPlay({ playId })
+	if (!nowShowing) {
+		console.warn(`🐶 Play not found for "${playId}".`)
+		return false
+	}
+
 	const user = await abslackt.getUser({ user: payload.user.id })
 	const { id: playerId } = user
 	const conversationName = `${playId}-${playerId}`.toLowerCase()
@@ -182,11 +228,6 @@ const handleBlockActions = async ({ access_token, abslackt, payload }) => {
 			  })
 			: payload.view
 
-	const nowShowing = await getPlay({ playId })
-	if (!nowShowing) {
-		console.warn(`🐶 Play not found for "${playId}".`)
-		return false
-	}
 	const { title, cast, getTranscript } = nowShowing
 
 	// Let the player join the cast
@@ -197,8 +238,6 @@ const handleBlockActions = async ({ access_token, abslackt, payload }) => {
 		real_name: playerName,
 		icon_emoji: ':speaking_head_in_silhouette:',
 	}
-	const transcript = getTranscript({ player })
-
 	if (cast) {
 		cast.player = player
 	}
@@ -208,53 +247,28 @@ const handleBlockActions = async ({ access_token, abslackt, payload }) => {
 	if (!isNaN(currentLineNumber)) {
 		currentLineNumber = actionValue
 	}
+
+	const transcript = getTranscript({ player })
 	const currentLine = transcript[currentLineNumber]
 	if (!currentLine) {
 		throw new Error(`🤔 Could not find line #${currentLineNumber} in ${playId}`)
 	}
 	const { type } = currentLine
 	if (type === 'message') {
-		console.debug(`🦄 Type: Message. Current line number: ${currentLineNumber}`)
-		let message = currentLine
-		let playNextLine = true
-
-		// If the action was an option in a message,
-		//  1. Find the option in the transcript that matches the`action_id`
-		//  2. Then send the appropriate response message to the conversation channel.
-		//     @todo handle responses that are modals
-		if (action.includes('option-')) {
-			const { options } = currentLine
-			const { optionNumber } = JSON.parse(value)
-			const selectedOption = options[optionNumber]
-
-			// @todo
-			console.log({ ...selectedOption })
-
-			const { response } = selectedOption
-			if (selectedOption.playNextLine) playNextLine = selectedOption.playNextLine
-			message = response
-		}
-
 		const { conversation } = await getConversation({
 			abslackt,
 			name: conversationName,
 			playerId,
 		})
 
-		console.debug(`🦄 Sending message`)
-		const messageData = {
+		postNextMessage({
+			currentLineNumber,
+			currentLine,
+			action,
 			access_token,
 			playId,
 			cast,
-			message,
 			conversation,
-			currentLineNumber,
-			playNextLine,
-		}
-		axios.post(`${SITE_HOST}/.netlify/functions/post-message`, messageData, {
-			headers: {
-				'x-playwrite-api-key': PLAYWRITE_API_KEY,
-			},
 		})
 	}
 
@@ -306,6 +320,44 @@ exports.handler = async (request) => {
 	const payload = JSON.parse(request.body)
 	const { type, team, team_id } = payload
 
+	console.debug(`🦄 Event type: ${type}`)
+
+	// If the event type is 'cue_next_message', all the required details are in the body payload.
+	if (type === 'cue_next_message') {
+		console.debug(`🦄 Cueing next message`)
+		const {
+			access_token, //
+			currentLineNumber,
+			conversation,
+			cast,
+			playId,
+		} = payload
+
+		const nowShowing = await getPlay({ playId })
+		if (!nowShowing) {
+			console.warn(`🐶 Play not found for "${thePlayId}".`)
+			return false
+		}
+
+		const { getTranscript } = nowShowing
+		const transcript = getTranscript({ player: cast.player })
+		const nextLineNumber = currentLineNumber + 1
+		const currentLine = transcript[nextLineNumber]
+		await postNextMessage({
+			access_token,
+			currentLineNumber: nextLineNumber,
+			conversation,
+			cast,
+			playId,
+			currentLine,
+		})
+
+		return {
+			statusCode: 200,
+			body: '',
+		}
+	}
+
 	const teamId = team_id ? team_id : team.id
 	if (!teamId) {
 		console.warn(`🤔 Error: team not found.`)
@@ -325,7 +377,6 @@ exports.handler = async (request) => {
 	const { access_token } = siteMetaData[teamId]
 	if (!access_token) {
 		console.warn(`🤔 Error: access_token not found.`)
-		console.debug({ ...siteMetaData })
 		return {
 			statusCode: 200,
 			body: '',
@@ -333,7 +384,6 @@ exports.handler = async (request) => {
 	}
 	const abslackt = getAbslackt({ access_token })
 
-	console.debug(`🦄 Event type: ${type}`)
 	if (type === 'block_actions') {
 		await handleBlockActions({ access_token, abslackt, payload }).catch(console.error)
 	}

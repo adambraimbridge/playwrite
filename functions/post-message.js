@@ -1,12 +1,17 @@
+const axios = require('axios')
 const { getAbslackt } = require('./lib/abslackt')
-const { PLAYWRITE_API_KEY } = process.env
+const { NETLIFY_DEV, PLAYWRITE_API_KEY } = process.env
+const SITE_HOST = NETLIFY_DEV === 'true' ? 'https://playwrite.ngrok.io' : 'https://playwrite.netlify.app'
 
-const sendMessage = async ({ access_token, conversation, cast, message }) => {
+const sendMessage = async ({ access_token, conversation, cast, message, playId, lineNumber }) => {
 	const messageStub = {
 		channel: conversation.id,
 		link_names: true,
 	}
 
+	if (!message || !message.from) {
+		return
+	}
 	const { real_name, icon_emoji } = cast[message.from]
 
 	const view = Object.assign({}, messageStub, {
@@ -77,23 +82,48 @@ exports.handler = async (request) => {
 		}
 	}
 
-	const payload = JSON.parse(request.body)
+	const bodyPayload = JSON.parse(request.body)
 	const {
-		access_token,
+		access_token, //
 		currentLineNumber,
 		conversation,
 		cast,
 		message,
-		playId, //
+		playId,
 		playNextLine,
-	} = payload
+	} = bodyPayload
 
 	console.debug(`🦄 Sending message. Line #${currentLineNumber}.`)
-	await sendMessage({ access_token, conversation, cast, message, playId })
+	await sendMessage({
+		access_token, //
+		conversation,
+		cast,
+		message,
+		playId,
+		lineNumber: currentLineNumber,
+	})
 
 	if (!!playNextLine) {
-		// @todo
+		const payload = {
+			type: 'cue_next_message', //
+			access_token,
+			conversation,
+			cast,
+			actions: [
+				{
+					action_id: 'continue',
+				},
+			],
+			playId,
+			currentLineNumber,
+		}
+
 		console.debug(`🦄 Calling the Director to cue the next line ...`)
+		axios.post(`${SITE_HOST}/.netlify/functions/director`, payload, {
+			headers: {
+				'x-playwrite-api-key': process.env.PLAYWRITE_API_KEY,
+			},
+		})
 	}
 
 	return {
