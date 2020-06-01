@@ -1,7 +1,7 @@
 // @see https://api.slack.com/docs/conversations-api
 const getConversation = async ({ slackWebClient, name, playerId }) => {
-	let conversation
 	console.debug(`🦄 Searching for conversation #${name} ... `)
+	let conversation
 	const userConversations = await slackWebClient.users //
 		.conversations({
 			limit: 1000,
@@ -33,6 +33,7 @@ const getConversation = async ({ slackWebClient, name, playerId }) => {
 }
 
 const createConversation = async ({ slackWebClient, name, playerId }) => {
+	console.debug(`🦄 Creating conversation #${name} ... `)
 	const result = await slackWebClient.conversations //
 		.create({
 			name,

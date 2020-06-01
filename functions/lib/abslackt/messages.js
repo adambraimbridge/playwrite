@@ -17,11 +17,13 @@ const sendMessages = async ({ slackWebClient, skipDelay, playId, cast, messages,
 
 		// Delay slightly between posting messages to simulate the real-life instant-messaging experience
 		// @todo If there's a new actor "coming onstage" as it were, add another few seconds of delay, to further help with suspension of disbelief
-		const milliseconds = text.length * 20 + 100
+		// const milliseconds = text.length * 20 + 100
 
-		if (!skipDelay) {
-			await delay(milliseconds)
-		}
+		// if (!skipDelay) {
+		// 	await delay(milliseconds)
+		// }
+
+		// @note Can't delay because functions time out after ten seconds.
 
 		const view = Object.assign({}, messageStub, {
 			icon_emoji,

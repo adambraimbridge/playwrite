@@ -65,7 +65,7 @@ You find yourself starting yet another day of work.`,
 	{
 		type: 'message',
 		from: 'ellie-elephant',
-		text: `You're in trouble now @${player.name}!`,
+		text: `You're in trouble now @${player.real_name}!`,
 	},
 	{
 		type: 'message',
@@ -235,7 +235,7 @@ You find yourself starting yet another day of work.`,
 		options: [
 			{
 				continue: false,
-				text: `Thanks. I'll watch it later`,
+				text: `:cool: I'll watch it later`,
 				response: {
 					type: 'message',
 					from: 'vicky-vole',
@@ -244,7 +244,7 @@ You find yourself starting yet another day of work.`,
 			},
 			{
 				continue: false,
-				text: `Oh yeah, I've already watched that one.`,
+				text: `I've already watched that one.`,
 				response: {
 					type: 'message',
 					from: 'vicky-vole',
@@ -413,7 +413,7 @@ You find yourself starting yet another day of work.`,
 	{
 		type: 'message',
 		from: 'ellie-elephant',
-		text: `Hi ${player.name}! I hope you're doing well. Just chasing up on that LTV plan. No rush, but how's it going?`,
+		text: `Hi ${player.real_name}! I hope you're doing well. Just chasing up on that LTV plan. No rush, but how's it going?`,
 	},
 	{
 		type: 'message',
