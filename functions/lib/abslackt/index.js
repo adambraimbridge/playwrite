@@ -17,6 +17,7 @@ const getPayload = ({ body }) => {
 		payload = json.payload || json
 	} catch (error) {
 		// Slack "Interactions"
+		console.log({ body })
 		payload = JSON.parse(decodeURIComponent(body).replace('payload=', ''))
 	}
 	return payload
