@@ -156,7 +156,7 @@ const postMessage = async ({ currentLineNumber, currentLine, action, actionValue
 		playNextMessage = !!selectedOption.playNextMessage // This will "pause" the play unless `playNextMessage` is explicitly set to `true`
 	}
 
-	console.debug(`🦄 Sending message`)
+	console.debug(`🦄 Posting message #${currentLineNumber}`)
 	const messageData = {
 		access_token,
 		playId,
@@ -166,11 +166,13 @@ const postMessage = async ({ currentLineNumber, currentLine, action, actionValue
 		currentLineNumber,
 		playNextMessage,
 	}
-	axios.post(`${SITE_HOST}/.netlify/functions/post-message`, messageData, {
-		headers: {
-			'x-playwrite-api-key': PLAYWRITE_API_KEY,
-		},
-	})
+	await axios
+		.post(`${SITE_HOST}/.netlify/functions/post-message`, messageData, {
+			headers: {
+				'x-playwrite-api-key': PLAYWRITE_API_KEY,
+			},
+		})
+		.catch(console.error)
 }
 
 const cueNextMessage = async ({ payload }) => {
