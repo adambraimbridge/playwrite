@@ -3,7 +3,7 @@ const { getAbslackt } = require('./lib/abslackt')
 const { NETLIFY_DEV, PLAYWRITE_API_KEY } = process.env
 const SITE_HOST = NETLIFY_DEV === 'true' ? 'https://playwrite.ngrok.io' : 'https://playwrite.netlify.app'
 
-const sendMessage = async ({ access_token, conversation, cast, message, playId, lineNumber }) => {
+const sendMessage = async ({ access_token, conversation, cast, message, playId, currentLineNumber }) => {
 	const messageStub = {
 		channel: conversation.id,
 		link_names: true,
@@ -45,7 +45,7 @@ const sendMessage = async ({ access_token, conversation, cast, message, playId, 
 		const elements = options.map((option, index) => {
 			const { text } = option
 			const value = JSON.stringify({
-				lineNumber,
+				currentLineNumber,
 				optionNumber: index,
 			})
 			return {
@@ -90,7 +90,7 @@ exports.handler = async (request) => {
 		cast,
 		message,
 		playId,
-		playNextLine,
+		playNextMessage,
 	} = bodyPayload
 
 	console.debug(`🦄 Sending message. Line #${currentLineNumber}.`)
@@ -100,20 +100,19 @@ exports.handler = async (request) => {
 		cast,
 		message,
 		playId,
-		lineNumber: currentLineNumber,
+		currentLineNumber,
 	})
 
-	if (!!playNextLine) {
+	// Automatically pause when given options to choose from.
+	// This allows the user to interact.
+	if (message.options) {
+		console.debug(`🦄 Pausing to let the user select an option ...`)
+	} else if (!!playNextMessage) {
 		const payload = {
 			type: 'cue_next_message', //
 			access_token,
 			conversation,
 			cast,
-			actions: [
-				{
-					action_id: 'continue',
-				},
-			],
 			playId,
 			currentLineNumber,
 		}

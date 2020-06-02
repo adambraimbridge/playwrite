@@ -91,10 +91,8 @@ You find yourself starting yet another day of work.`,
 		type: 'message',
 		from: 'natalie-narrator',
 		text: `After reading this you feel your blood pressure rising and sweat starts to moisten your brow. You’ve never heard of LTV. What could it possibly mean? `,
-		interactionCue: true,
 		options: [
 			{
-				continue: false,
 				text: 'Limited Term Variable',
 				response: {
 					type: 'message',
@@ -103,7 +101,7 @@ You find yourself starting yet another day of work.`,
 				},
 			},
 			{
-				continue: true,
+				playNextMessage: true,
 				text: 'Lifetime Value',
 				response: {
 					type: 'message',
@@ -112,7 +110,6 @@ You find yourself starting yet another day of work.`,
 				},
 			},
 			{
-				continue: false,
 				text: 'Least Terrible Version',
 				response: {
 					type: 'message',
@@ -231,10 +228,8 @@ You find yourself starting yet another day of work.`,
 		type: 'message',
 		from: 'vicky-vole',
 		text: `Here: https://drive.google.com/file/d/1mnggrvAz7-PU7nwko73RlJNclDlWmCas/view`,
-		interactionCue: true,
 		options: [
 			{
-				continue: false,
 				text: `:cool: I'll watch it later`,
 				response: {
 					type: 'message',
@@ -243,7 +238,6 @@ You find yourself starting yet another day of work.`,
 				},
 			},
 			{
-				continue: false,
 				text: `I've already watched that one.`,
 				response: {
 					type: 'message',
@@ -252,7 +246,7 @@ You find yourself starting yet another day of work.`,
 				},
 			},
 			{
-				continue: true,
+				playNextMessage: true,
 				text: `Awesoem, thanks Vicky.`,
 				response: {
 					type: 'message',
@@ -326,10 +320,9 @@ You find yourself starting yet another day of work.`,
 		type: 'message',
 		from: 'player',
 		text: `Here's what I'm thinking of starting with:`,
-		interactionCue: true,
 		options: [
 			{
-				continue: true,
+				playNextMessage: true,
 				text: `Cancel all client discounts`,
 				response: {
 					type: 'message',
@@ -338,7 +331,7 @@ You find yourself starting yet another day of work.`,
 				},
 			},
 			{
-				continue: true,
+				playNextMessage: true,
 				text: `Increase discounts by 20%`,
 				response: {
 					type: 'message',
@@ -397,10 +390,9 @@ You find yourself starting yet another day of work.`,
 		type: 'message',
 		from: 'natalie-narrator',
 		text: `Come back here after you've had a look at that LTV simulator.`,
-		interactionCue: true,
 		options: [
 			{
-				continue: true,
+				playNextMessage: true,
 				text: `Okay I'm back.`,
 				response: {
 					type: 'message',
@@ -430,11 +422,9 @@ You find yourself starting yet another day of work.`,
 	{
 		type: 'message',
 		from: 'player',
-		text: `Hi @natalie-narrator, Adam here.`,
-		interactionCue: true,
+		text: `Hi ${player.real_name}, Adam here.`,
 		options: [
 			{
-				continue: false,
 				text: `This is where I get stuck.`,
 				response: {
 					type: 'message',
@@ -443,7 +433,6 @@ You find yourself starting yet another day of work.`,
 				},
 			},
 			{
-				continue: false,
 				text: `Because I don't understand LTV :( `,
 				response: {
 					type: 'message',
@@ -452,7 +441,7 @@ You find yourself starting yet another day of work.`,
 				},
 			},
 			{
-				continue: true,
+				playNextMessage: true,
 				text: `I need help for this part`,
 				response: {
 					type: 'message',

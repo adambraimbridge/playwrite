@@ -109,6 +109,10 @@ const deliverModal = async ({ abslackt, view_id, view, playId, currentLine, next
 		buttonStyle = 'danger'
 		buttonAction = 'check-messages'
 	}
+
+	const value = JSON.stringify({
+		currentLineNumber: nextLineNumber,
+	})
 	blocks.push({
 		type: 'actions',
 		block_id: playId,
@@ -120,7 +124,7 @@ const deliverModal = async ({ abslackt, view_id, view, playId, currentLine, next
 					text: buttonText,
 				},
 				style: buttonStyle,
-				value: `${nextLineNumber}`,
+				value,
 				action_id: buttonAction,
 				url: buttonUrl,
 			},
@@ -136,26 +140,22 @@ const deliverModal = async ({ abslackt, view_id, view, playId, currentLine, next
 		.catch(console.error)
 }
 
-const postNextMessage = async ({ currentLineNumber, currentLine, action, access_token, playId, cast, conversation }) => {
+const postMessage = async ({ currentLineNumber, currentLine, action, actionValue, access_token, playId, cast, conversation }) => {
 	console.debug(`🦄 Type: Message. Current line number: ${currentLineNumber}`)
 	let message = currentLine
-	let playNextLine = true
+	let playNextMessage = true
 
 	// If the action was an option in a message,
 	//  1. Find the option in the transcript that matches the`action_id`
 	//  2. Then send the appropriate response message to the conversation channel.
 	//     @todo handle responses that are modals
 	if (!!action && action.includes('option-')) {
-		const { options } = currentLine
-		const { optionNumber } = JSON.parse(value)
-		const selectedOption = options[optionNumber]
+		console.log({ action })
 
-		// @todo ...?
-		console.log({ ...selectedOption })
-
-		const { response } = selectedOption
-		if (selectedOption.playNextLine) playNextLine = selectedOption.playNextLine
-		message = response
+		const { optionNumber } = actionValue
+		const selectedOption = currentLine.options[optionNumber]
+		message = selectedOption.response
+		playNextMessage = !!selectedOption.playNextMessage // This will "pause" the play unless `playNextMessage` is explicitly set to `true`
 	}
 
 	console.debug(`🦄 Sending message`)
@@ -166,7 +166,7 @@ const postNextMessage = async ({ currentLineNumber, currentLine, action, access_
 		message,
 		conversation,
 		currentLineNumber,
-		playNextLine,
+		playNextMessage,
 	}
 	axios.post(`${SITE_HOST}/.netlify/functions/post-message`, messageData, {
 		headers: {
@@ -175,10 +175,44 @@ const postNextMessage = async ({ currentLineNumber, currentLine, action, access_
 	})
 }
 
+const cueNextMessage = async ({ payload }) => {
+	console.debug(`🦄 Cueing next message`)
+	const {
+		access_token, //
+		currentLineNumber,
+		conversation,
+		cast,
+		playId,
+	} = payload
+
+	// @todo refactor this dupe
+	const nowShowing = await getPlay({ playId })
+	if (!nowShowing) {
+		console.warn(`🐶 Play not found for "${thePlayId}".`)
+		return false
+	}
+
+	const { getTranscript } = nowShowing
+	const transcript = getTranscript({ player: cast.player })
+	const nextLineNumber = currentLineNumber + 1
+	const currentLine = transcript[nextLineNumber]
+
+	// @note Don't await here or it times out.
+	postMessage({
+		access_token,
+		currentLineNumber: nextLineNumber,
+		conversation,
+		cast,
+		playId,
+		currentLine,
+	})
+}
+
 const handleBlockActions = async ({ access_token, abslackt, payload }) => {
 	const { action_id: action, block_id: playId, value } = payload.actions[0]
 	console.debug(`🦄 Action = ${action}`)
 
+	// @todo refactor this dupe
 	const nowShowing = await getPlay({ playId })
 	if (!nowShowing) {
 		console.warn(`🐶 Play not found for "${playId}".`)
@@ -242,11 +276,11 @@ const handleBlockActions = async ({ access_token, abslackt, payload }) => {
 		cast.player = player
 	}
 
-	let currentLineNumber = 0
+	// We use the Slack block's "action" value to store the current line number.
 	const actionValue = JSON.parse(value)
-	if (!isNaN(currentLineNumber)) {
-		currentLineNumber = actionValue
-	}
+	const currentLineNumber = actionValue.currentLineNumber || 0
+
+	console.log({ currentLineNumber })
 
 	const transcript = getTranscript({ player })
 	const currentLine = transcript[currentLineNumber]
@@ -261,10 +295,12 @@ const handleBlockActions = async ({ access_token, abslackt, payload }) => {
 			playerId,
 		})
 
-		postNextMessage({
+		// @note Don't await here or it times out.
+		postMessage({
 			currentLineNumber,
 			currentLine,
 			action,
+			actionValue,
 			access_token,
 			playId,
 			cast,
@@ -272,13 +308,15 @@ const handleBlockActions = async ({ access_token, abslackt, payload }) => {
 		})
 	}
 
+	// For modals, we need to know the next line because reasons
+	// @todo I forgot the reasons
 	if (type === 'modal') {
 		const homepageUrl = `slack://app?team=${payload.team.id}&id=${payload.api_app_id}&tab=home`
 		const nextLineNumber = currentLineNumber + 1
 		const nextLine = transcript[nextLineNumber]
 		console.debug(`🦄 Type: Modal. Next line number: ${nextLineNumber}`)
 
-		// @todo handle the end of the play if appropriate
+		// @todo handle the end of the play if appropriate.
 		if (!nextLine) {
 			console.warn('🐶 Next line not found.')
 		}
@@ -322,36 +360,10 @@ exports.handler = async (request) => {
 
 	console.debug(`🦄 Event type: ${type}`)
 
-	// If the event type is 'cue_next_message', all the required details are in the body payload.
+	// If the event type is 'cue_next_message', expect all the required details to be in the body payload.
+	// This is meant to speed up the app logic, for better performance.
 	if (type === 'cue_next_message') {
-		console.debug(`🦄 Cueing next message`)
-		const {
-			access_token, //
-			currentLineNumber,
-			conversation,
-			cast,
-			playId,
-		} = payload
-
-		const nowShowing = await getPlay({ playId })
-		if (!nowShowing) {
-			console.warn(`🐶 Play not found for "${thePlayId}".`)
-			return false
-		}
-
-		const { getTranscript } = nowShowing
-		const transcript = getTranscript({ player: cast.player })
-		const nextLineNumber = currentLineNumber + 1
-		const currentLine = transcript[nextLineNumber]
-		await postNextMessage({
-			access_token,
-			currentLineNumber: nextLineNumber,
-			conversation,
-			cast,
-			playId,
-			currentLine,
-		})
-
+		cueNextMessage({ payload }).catch(console.error)
 		return {
 			statusCode: 200,
 			body: '',
