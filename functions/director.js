@@ -150,8 +150,6 @@ const postMessage = async ({ currentLineNumber, currentLine, action, actionValue
 	//  2. Then send the appropriate response message to the conversation channel.
 	//     @todo handle responses that are modals
 	if (!!action && action.includes('option-')) {
-		console.log({ action })
-
 		const { optionNumber } = actionValue
 		const selectedOption = currentLine.options[optionNumber]
 		message = selectedOption.response
@@ -279,9 +277,6 @@ const handleBlockActions = async ({ access_token, abslackt, payload }) => {
 	// We use the Slack block's "action" value to store the current line number.
 	const actionValue = JSON.parse(value)
 	const currentLineNumber = actionValue.currentLineNumber || 0
-
-	console.log({ currentLineNumber })
-
 	const transcript = getTranscript({ player })
 	const currentLine = transcript[currentLineNumber]
 	if (!currentLine) {

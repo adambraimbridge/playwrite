@@ -61,7 +61,7 @@ const createConversation = async ({ slackWebClient, name, playerId }) => {
 
 // @todo Check that the conversation hasn't been deleted/archived/abandoned ..?
 const inviteUser = async ({ slackWebClient, channel, users }) => {
-	console.log(`🦄 Inviting user #${users} to the conversation`)
+	console.debug(`🦄 Inviting user #${users} to the conversation`)
 	await slackWebClient.conversations //
 		.invite({
 			channel,
