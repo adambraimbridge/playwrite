@@ -27,7 +27,7 @@ exports.handler = async (request) => {
 		} else {
 			const path = '/.netlify/functions/director'
 			// console.debug(`🦄 Action! Cue ${SITE_HOST}${path}`)
-			axios.post(`${SITE_HOST}${path}`, payload, {
+			await axios.post(`${SITE_HOST}${path}`, payload, {
 				headers: {
 					'x-playwrite-api-key': process.env.PLAYWRITE_API_KEY,
 				},
