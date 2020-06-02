@@ -417,6 +417,18 @@ You find yourself starting yet another day of work.`,
 	},
 	{
 		type: 'message',
+		from: 'natalie-narrator',
+		image_url: 'https://media.giphy.com/media/KINAUcarXNxWE/200w_d.gif',
+		alt_text: ` ~ fin. ~`,
+		text: `*GAME OVER*`,
+	},
+	{
+		type: 'message',
+		from: 'natalie-narrator',
+		text: `To be continued ...`,
+	},
+	{
+		type: 'message',
 		from: 'player',
 		text: `Hi @natalie-narrator, Adam here.`,
 		interactionCue: true,
@@ -452,13 +464,6 @@ You find yourself starting yet another day of work.`,
 	},
 	{
 		type: 'message',
-		from: 'natalie-narrator',
-		image_url: 'https://media.giphy.com/media/KINAUcarXNxWE/200w_d.gif',
-		alt_text: ` ~ fin. ~`,
-		text: `*GAME OVER*`,
-	},
-	{
-		type: 'message',
 		from: 'player',
 		text: `
 
@@ -474,11 +479,6 @@ You find yourself starting yet another day of work.`,
 
 		Next up, we can make more little games to explore how LTV relates to 'Attribution' and 'Sensitivity'.
 		`,
-	},
-	{
-		type: 'message',
-		from: 'natalie-narrator',
-		text: `To be continued ...`,
 	},
 ]
 
