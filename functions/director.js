@@ -141,7 +141,7 @@ const deliverModal = async ({ abslackt, view_id, view, playId, currentLine, next
 }
 
 const postMessage = async ({ currentLineNumber, currentLine, action, actionValue, access_token, playId, cast, conversation }) => {
-	console.debug(`🦄 Type: Message. Current line number: ${currentLineNumber}`)
+	console.debug(`🦄 Type: Message.`)
 	let message = currentLine
 	let playNextMessage = true
 
@@ -156,7 +156,7 @@ const postMessage = async ({ currentLineNumber, currentLine, action, actionValue
 		playNextMessage = !!selectedOption.playNextMessage // This will "pause" the play unless `playNextMessage` is explicitly set to `true`
 	}
 
-	console.debug(`🦄 Posting message #${currentLineNumber}`)
+	console.debug(`🦄 Posting message #${currentLineNumber} to ${SITE_HOST}/.netlify/functions/post-message`)
 	const messageData = {
 		access_token,
 		playId,
@@ -166,13 +166,14 @@ const postMessage = async ({ currentLineNumber, currentLine, action, actionValue
 		currentLineNumber,
 		playNextMessage,
 	}
-	await axios
+	const response = await axios
 		.post(`${SITE_HOST}/.netlify/functions/post-message`, messageData, {
 			headers: {
 				'x-playwrite-api-key': PLAYWRITE_API_KEY,
 			},
 		})
 		.catch(console.error)
+	console.log(response.status)
 }
 
 const cueNextMessage = async ({ payload }) => {

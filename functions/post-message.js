@@ -117,12 +117,15 @@ exports.handler = async (request) => {
 			currentLineNumber,
 		}
 
-		console.debug(`🦄 Calling the Director to cue the next line ...`)
-		axios.post(`${SITE_HOST}/.netlify/functions/director`, payload, {
-			headers: {
-				'x-playwrite-api-key': process.env.PLAYWRITE_API_KEY,
-			},
-		})
+		console.debug(`🦄 Calling the Director to cue the next line (#${currentLineNumber})`)
+		const response = await axios
+			.post(`${SITE_HOST}/.netlify/functions/director`, payload, {
+				headers: {
+					'x-playwrite-api-key': process.env.PLAYWRITE_API_KEY,
+				},
+			})
+			.catch(console.error)
+		console.log(response.status)
 	}
 
 	return {
