@@ -1,16 +1,11 @@
-// Act one ends with a choice from the narrator
-// Act two ends in a choice from Vicky Vole
-// Act three ends in a choice from Tyrone Tortoise
-// Act four ends with submitting a LTV plan to Ellie Elephant
-// Either the narrator tells you how you went,
-// or there's some other way to let you know the effect of your LTV choices
-
-// Author comes from Slack User ID https://[slack-organisation].slack.com/account/profile
 const play = {
-	author: 'U012B5GLCJG',
+	author: {
+		real_name: 'Adam Braimbridge',
+		icon_emoji: ':unicorn_face:',
+	},
 	id: 'ltv-in-the-jungle',
 	title: 'LTV in the Jungle',
-	description: 'A fast-paced action adventure pitting you against the wild.',
+	description: '🚧 `PRE-ALPHA DEMO` A fast-paced action adventure pitting you against the wild.',
 	score: '★★★★☆',
 	duration: 'Less than five minutes',
 }
@@ -51,7 +46,7 @@ You find yourself starting yet another day of work.`,
 	{
 		type: 'modal',
 		from: 'natalie-narrator',
-		image_url: 'http://placekitten.com/700/500',
+		image_url: 'http://placekitten.com/700/300',
 		alt_text: `Your character's primary motivation is: Kitten.`,
 		text: `You've recently been placed in charge of managing a portfolio of clients who pay a subscription to access online content.`,
 	},
@@ -65,27 +60,15 @@ You find yourself starting yet another day of work.`,
 	{
 		type: 'message',
 		from: 'ellie-elephant',
-		text: `You're in trouble now @${player.real_name}!`,
-	},
-	{
-		type: 'message',
-		from: 'ellie-elephant',
-		text: `If I’ve told you once I’ve told you a thousand times. An elephant never forgets and I distinctly remember telling you.`,
-	},
-	{
-		type: 'message',
-		from: 'ellie-elephant',
-		text: `This is your last warning. If I’m not satisfied with your progress it will go on your _Permanent Record._`,
-	},
-	{
-		type: 'message',
-		from: 'ellie-elephant',
-		text: `I’m going to check in on you later on.`,
-	},
-	{
-		type: 'message',
-		from: 'ellie-elephant',
-		text: `When I do, you’d better have a plan to increase average LTV of your portfolio.`,
+		text: `You're in trouble now @${player.real_name}!
+
+If I’ve told you once I’ve told you a thousand times. An elephant never forgets and I distinctly remember telling you.
+
+This is your last warning. If I’m not satisfied with your progress it will go on your _Permanent Record._
+
+I’m going to check in on you later on.
+
+When I do, you’d better have a plan to increase average LTV of your portfolio.`,
 	},
 	{
 		type: 'message',
@@ -106,7 +89,9 @@ You find yourself starting yet another day of work.`,
 				response: {
 					type: 'message',
 					from: 'natalie-narrator',
-					text: `✅ \`Lifetime Value\` Ah yes, of course. Well done.`,
+					text: `✅ \`Lifetime Value\`
+
+Ah yes, of course. Well done.`,
 				},
 			},
 			{
@@ -122,37 +107,33 @@ You find yourself starting yet another day of work.`,
 	{
 		type: 'message',
 		from: 'natalie-narrator',
-		text: `But why would Ellie want you to make a plan to increase LTV? And how would you even start? What changes can you make?`,
-	},
-	{
-		type: 'message',
-		from: 'natalie-narrator',
-		text: `Anxiety grows and you feel your resolve weaken as you reach for the bottle of vodka under your desk ...`,
-	},
-	{
-		type: 'message',
-		from: 'natalie-narrator',
-		text: `Suddenly you snatch back your empty hand. "No", you think. Not again. _Never again._`,
-	},
-	{
-		type: 'message',
-		from: 'natalie-narrator',
-		text: `And then you remember! Of course, that's it!`,
-	},
-	{
-		type: 'message',
-		from: 'natalie-narrator',
-		text: `Your colleague, Vicky Vole, is always first to figure out this kind of thing.`,
+		text: `But why would Ellie want you to make a plan to increase LTV? And how would you even start? What changes can you make?
+
+Anxiety grows. Pulse quickens. You feel your resolve weaken as you reach for the bottle of vodka under your desk ...
+
+Suddenly you snatch back your empty hand. "No", you think. Not again.
+
+_Never again._
+
+And then you remember! Of course, that's it!
+
+Your colleague, Vicky Vole, is always first to figure out this kind of thing.`,
 	},
 	{
 		type: 'message',
 		from: 'natalie-narrator',
 		text: `So you send them a message asking for help.`,
-	},
-	{
-		type: 'message',
-		from: 'player',
-		text: `Hey @vicky.vole. What’s up with LTV?`,
+		options: [
+			{
+				playNextMessage: true,
+				text: `✉️ Send`,
+				response: {
+					type: 'message',
+					from: 'player',
+					text: `Hey @vicky.vole. What’s up with LTV?`,
+				},
+			},
+		],
 	},
 	{
 		type: 'message',
@@ -167,17 +148,11 @@ You find yourself starting yet another day of work.`,
 	{
 		type: 'message',
 		from: 'player',
-		text: `I need to do a plan for LTV.`,
-	},
-	{
-		type: 'message',
-		from: 'player',
-		text: `I know LTV means lifetime value`,
-	},
-	{
-		type: 'message',
-		from: 'player',
-		text: `But TBH I don't have any idea how it works. Do you know?`,
+		text: `I need to do a plan for LTV.
+
+I know LTV means lifetime value
+
+But TBH I don't have any idea how it works. Do you know?`,
 	},
 	{
 		type: 'message',
@@ -187,22 +162,16 @@ You find yourself starting yet another day of work.`,
 	{
 		type: 'message',
 		from: 'player',
-		text: `Um, I must have missed it ..?`,
+		text: `🙄 Um, I must have missed it ..?`,
 	},
 	{
 		type: 'message',
 		from: 'vicky-vole',
-		text: `You _never_ check your emails :angry: `,
-	},
-	{
-		type: 'message',
-		from: 'vicky-vole',
-		text: `Anyway it has a link to a video called "What you need to know about LTV at the FT" `,
-	},
-	{
-		type: 'message',
-		from: 'vicky-vole',
-		text: `One sec ...`,
+		text: `You _never_ check your emails :angry:
+
+Anyway it has a link to a video called "What you need to know about LTV at the FT"
+
+One sec ...`,
 	},
 	{
 		type: 'message',
@@ -218,11 +187,17 @@ You find yourself starting yet another day of work.`,
 		type: 'message',
 		from: 'natalie-narrator',
 		text: `So annoying.`,
-	},
-	{
-		type: 'message',
-		from: 'natalie-narrator',
-		text: `You decide to ignore Tyrone.`,
+		options: [
+			{
+				playNextMessage: true,
+				text: `Ignore Tyrone.`,
+				response: {
+					type: 'message',
+					from: 'natalie-narrator',
+					text: `You decide to ignore Tyrone.`,
+				},
+			},
+		],
 	},
 	{
 		type: 'message',
@@ -269,52 +244,54 @@ You find yourself starting yet another day of work.`,
 	{
 		type: 'message',
 		from: 'natalie-narrator',
-		text: `The clock inexorably winds its way onwards. You still have to make an LTV plan for Ellie. `,
-	},
-	{
-		type: 'message',
-		from: 'natalie-narrator',
-		text: `What to do ... what to do ...  `,
-	},
-	{
-		type: 'message',
-		from: 'natalie-narrator',
-		text: `... Let's see what Tyrone wanted.`,
-	},
-	{
-		type: 'message',
-		from: 'player',
-		text: `Hi @tyrone. What's up?`,
+		text: `The clock inexorably winds its way onwards. You still have to make an LTV plan for Ellie.
+
+What to do ... what to do ...
+
+
+
+
+... Let's see what Tyrone wanted.`,
+		options: [
+			{
+				playNextMessage: true,
+				text: `✉️ Message Tyrone.`,
+				response: {
+					type: 'message',
+					from: 'player',
+					text: `Hi @tyrone. What's up?`,
+				},
+			},
+		],
 	},
 	{
 		type: 'message',
 		from: 'tyrone-tortoise',
-		text: `I heard you're our resident expert in LTV. Can I see the plan you've made?`,
-	},
-	{
-		type: 'message',
-		from: 'natalie-narrator',
-		text: `LOL sucks to be you :joy_cat: `,
+		text: `Hi!
+
+I heard you're our resident expert in LTV. Can I see the plan you've made?`,
 	},
 	{
 		type: 'message',
 		from: 'player',
-		text: `Well I'm certainly no expert, but I am working on an LTV plan, yeah.`,
+		text: `Well, I mean I'm certainly no expert, but I am working on an LTV plan, yeah.`,
 	},
 	{
 		type: 'message',
 		from: 'natalie-narrator',
-		text: `Off the top of your head, there's two options: `,
+		text: `LOL sucks to be you :joy_cat:
+
+Okay, think. Off the top of your head, there's two options: `,
 	},
 	{
 		type: 'message',
 		from: 'natalie-narrator',
-		text: `Cancel all discounts and spend the extra budget on marketing for new clients. More clients mean more profit.`,
+		text: `Either (1) Cancel all discounts and spend the extra budget on marketing for new clients. More clients mean more profit.`,
 	},
 	{
 		type: 'message',
 		from: 'natalie-narrator',
-		text: `Or: Increase all client discounts by 20%. It'll make them happy and reduce the amount of cancellations, so we won't lose that money. `,
+		text: `Or: (2) Increase all client discounts by 20%. It'll make them happy and reduce the amount of cancellations, so we won't lose that money. `,
 	},
 	{
 		type: 'message',
@@ -344,52 +321,55 @@ You find yourself starting yet another day of work.`,
 	{
 		type: 'message',
 		from: 'natalie-narrator',
-		text: `Of course, it's never as simple as you think. What works for some won't work for others.`,
+		text: `
+
+...ah.
+
+Of course, it's never as simple as you think.
+
+What works for some won't work for others.
+
+If only there was some kind of LTV Simulator you could use to help fine-tune the decisions you need to make for each client.`,
+		options: [
+			{
+				playNextMessage: true,
+				text: `🤥 Feign confidence`,
+				response: {
+					type: 'message',
+					from: 'player',
+					text: `Listen Tyrone, you're asking questions outside your pay grade.
+
+I'm going to figure it out. Leave it with me and I'll get back to you.`,
+				},
+			},
+		],
 	},
 	{
 		type: 'message',
 		from: 'natalie-narrator',
-		text: `If only there was some kind of LTV Simulator you could use to help fine-tune the decisions you need to make for each client.`,
-	},
-	{
-		type: 'message',
-		from: 'player',
-		text: `Tyrone, you're asking questions outside your pay grade. `,
-	},
-	{
-		type: 'message',
-		from: 'player',
-		text: `I'm going to figure it out. Leave it with me and I'll get back to you`,
-	},
-	{
-		type: 'message',
-		from: 'natalie-narrator',
-		text: `Edit: You never got back to Tyrone ever again.`,
+		text: `_Edit: You never got back to Tyrone ever again._`,
 	},
 	{
 		type: 'message',
 		from: 'tyrone-tortoise',
-		text: `Thanks! Oh BTW there's a cool LTV simulator that you could use to help fine-tune the decisions you need to make for each client.`,
-	},
-	{
-		type: 'message',
-		from: 'tyrone-tortoise',
-		text: `It's in the https://www.ft.com/lifetimevalue site. KTHXBAI,`,
-	},
-	{
-		type: 'message',
-		from: 'natalie-narrator',
-		text: ` ... `,
+		text: `Thanks!
+
+Oh BTW there's a cool LTV simulator that you could use to help fine-tune the decisions you need to make for each client.
+
+It's <https://ip-incubator-ltvprototypes.herokuapp.com/ltvCalculation|here in the LTV site>.`,
 	},
 	{
 		type: 'message',
 		from: 'natalie-narrator',
-		text: `Well that's a stunning coincidence.`,
-	},
-	{
-		type: 'message',
-		from: 'natalie-narrator',
-		text: `Come back here after you've had a look at that LTV simulator.`,
+		text: `
+
+		...
+
+Well that's a stunning coincidence.
+
+How about right now you go have a look at that <https://ip-incubator-ltvprototypes.herokuapp.com/ltvCalculation|LTV simulator>.
+
+Then come back here _after_ it starts to make sense.`,
 		options: [
 			{
 				playNextMessage: true,
@@ -397,7 +377,9 @@ You find yourself starting yet another day of work.`,
 				response: {
 					type: 'message',
 					from: 'natalie-narrator',
-					text: `Just in time! Ellie has run out of patience. She is absolutely _furious!_`,
+					text: `Just in time!
+
+Ellie Elephant has run out of patience. She is _absolutely furious!_`,
 				},
 			},
 		],
@@ -405,27 +387,32 @@ You find yourself starting yet another day of work.`,
 	{
 		type: 'message',
 		from: 'ellie-elephant',
-		text: `Hi ${player.real_name}! I hope you're doing well. Just chasing up on that LTV plan. No rush, but how's it going?`,
+		text: `Hi ${player.real_name}!
+
+I hope you're doing well. Just chasing up on that LTV plan.
+
+No rush, but how's it going?`,
 	},
 	{
 		type: 'message',
 		from: 'natalie-narrator',
 		image_url: 'https://media.giphy.com/media/KINAUcarXNxWE/200w_d.gif',
 		alt_text: ` ~ fin. ~`,
-		text: `*GAME OVER*`,
-	},
-	{
-		type: 'message',
-		from: 'natalie-narrator',
-		text: `To be continued ...`,
+		text: `
+
+
+
+
+
+		To be continued ...`,
 	},
 	{
 		type: 'message',
 		from: 'player',
-		text: `Hi ${player.real_name}, Adam here.`,
+		text: `Hi ${player.real_name}, This is Adam here. I'm programming this game.`,
 		options: [
 			{
-				text: `This is where I get stuck.`,
+				text: `😢 This is where I get stuck.`,
 				response: {
 					type: 'message',
 					from: 'natalie-narrator',
@@ -433,7 +420,7 @@ You find yourself starting yet another day of work.`,
 				},
 			},
 			{
-				text: `Because I don't understand LTV :( `,
+				text: `😫 I don't understand LTV`,
 				response: {
 					type: 'message',
 					from: 'natalie-narrator',
@@ -442,11 +429,11 @@ You find yourself starting yet another day of work.`,
 			},
 			{
 				playNextMessage: true,
-				text: `I need help for this part`,
+				text: `🥺 I need help for this part`,
 				response: {
 					type: 'message',
 					from: 'natalie-narrator',
-					text: `Okay, Here's what you do: Demo this to the analytics team and if they like it, they'll know what to do.`,
+					text: `Okay Adam, Here's what you do:`,
 				},
 			},
 		],
@@ -454,20 +441,14 @@ You find yourself starting yet another day of work.`,
 	{
 		type: 'message',
 		from: 'player',
-		text: `
+		text: `TO DO:
 
-		TO DO:
-
-		The player has to pick some kind of LTV plan.
-
-		Once they do, they'll get a summary of what they just learned.
-
-		Maybe they'll get a score, or some gold stars.
-
-		In version 1.1, there'll be a feedback prompt with :thumbsup: :thumbsdown:  or similar.
-
-		Next up, we can make more little games to explore how LTV relates to 'Attribution' and 'Sensitivity'.
-		`,
+ • Demo this to the analytics team and if they like it, they'll know what to do.
+ • The player has to pick some kind of LTV plan.
+ • Once they do, they'll get a summary of what they just learned.
+ • Maybe they'll get a score, or some gold stars.
+ • In version 1.1, there'll be a feedback prompt with :thumbsup: :thumbsdown:  or similar.
+ • Next up, we can make more little games to explore how LTV relates to 'Attribution' and 'Sensitivity'.`,
 	},
 ]
 

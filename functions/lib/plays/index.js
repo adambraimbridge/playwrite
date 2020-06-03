@@ -11,7 +11,7 @@ const getPlay = async ({ playId }) => {
 
 // Generate the Slack markup to show the plays on the app homepage.
 const getPlayBlocks = async ({ abslackt, user_id }) => {
-	console.debug(`🦄 Getting playblocks`)
+	console.debug(`🚀 Getting playblocks`)
 	return plays.reduce(async (accumulator, { id, title, author, description, score, duration }) => {
 		const elements = []
 		const conversationName = `${id}-${user_id}`.toLowerCase()
