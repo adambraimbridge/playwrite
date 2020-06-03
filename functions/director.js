@@ -19,7 +19,7 @@ const getConversation = async ({ abslackt, name, playerId }) => {
 }
 
 const updateHomepage = async ({ abslackt, user_id }) => {
-	console.debug(`🦄 Updating homepage for user #${user_id}`)
+	console.debug(`🏡 Updating homepage for user #${user_id}`)
 	const blocks = await getPlayBlocks({ abslackt, user_id })
 	const randomTagline = getRandomTagline()
 	blocks.push({
@@ -141,7 +141,7 @@ const deliverModal = async ({ abslackt, view_id, view, playId, currentLine, next
 }
 
 const postMessage = async ({ currentLineNumber, currentLine, action, actionValue, access_token, playId, cast, conversation }) => {
-	console.debug(`🦄 Type: Message.`)
+	console.debug(`💌 Type: Message.`)
 	let message = currentLine
 	let playNextMessage = true
 
@@ -156,7 +156,7 @@ const postMessage = async ({ currentLineNumber, currentLine, action, actionValue
 		playNextMessage = !!selectedOption.playNextMessage // This will "pause" the play unless `playNextMessage` is explicitly set to `true`
 	}
 
-	console.debug(`🦄 Posting message #${currentLineNumber} to ${SITE_HOST}/.netlify/functions/post-message`)
+	console.debug(`💌 Posting line #${currentLineNumber} to ${SITE_HOST}/.netlify/functions/post-message`)
 	const messageData = {
 		access_token,
 		playId,
@@ -173,11 +173,11 @@ const postMessage = async ({ currentLineNumber, currentLine, action, actionValue
 			},
 		})
 		.catch(console.error)
-	console.log(response.status)
+	console.debug(`💌 Message #${currentLineNumber}: ${response.status}`)
 }
 
 const cueNextMessage = async ({ payload }) => {
-	console.debug(`🦄 Cueing next message`)
+	console.debug(`🎱 Cueing next message`)
 	const {
 		access_token, //
 		currentLineNumber,
@@ -198,20 +198,19 @@ const cueNextMessage = async ({ payload }) => {
 	const nextLineNumber = currentLineNumber + 1
 	const currentLine = transcript[nextLineNumber]
 
-	// @note Don't await here or it times out.
-	postMessage({
+	await postMessage({
 		access_token,
 		currentLineNumber: nextLineNumber,
 		conversation,
 		cast,
 		playId,
 		currentLine,
-	})
+	}).catch(console.error)
 }
 
 const handleBlockActions = async ({ access_token, abslackt, payload }) => {
 	const { action_id: action, block_id: playId, value } = payload.actions[0]
-	console.debug(`🦄 Action = ${action}`)
+	console.debug(`💥 Action = ${action}`)
 
 	// @todo refactor this dupe
 	const nowShowing = await getPlay({ playId })
@@ -225,7 +224,7 @@ const handleBlockActions = async ({ access_token, abslackt, payload }) => {
 	const conversationName = `${playId}-${playerId}`.toLowerCase()
 
 	if (action === 'restart') {
-		console.debug('🦄 Restart by yeeting the appropriate channel.')
+		console.debug('💥 Restart by yeeting the appropriate channel.')
 		return abslackt.yeetConversation({
 			name: conversationName,
 			id: value,
@@ -249,7 +248,7 @@ const handleBlockActions = async ({ access_token, abslackt, payload }) => {
 	if (action === 'messages-link') {
 		// @todo check that the player has made it past the modal onboarding.
 		// or move the channel creation to after the onboarding ends.
-		console.debug('🦄 Player clicked a link to the appropriate Slack conversation channel.')
+		console.debug('💥 Player clicked a link to the appropriate Slack conversation channel.')
 		return false
 	}
 
@@ -268,9 +267,8 @@ const handleBlockActions = async ({ access_token, abslackt, payload }) => {
 	// Let the player join the cast
 	// @todo figure out how to display the player's avatar
 	// @see https://api.slack.com/methods/chat.postMessage#arg_icon_url
-	const { name: playerName } = user
 	const player = {
-		real_name: playerName,
+		...user,
 		icon_emoji: ':speaking_head_in_silhouette:',
 	}
 	if (cast) {
@@ -293,8 +291,7 @@ const handleBlockActions = async ({ access_token, abslackt, payload }) => {
 			playerId,
 		})
 
-		// @note Don't await here or it times out.
-		postMessage({
+		await postMessage({
 			currentLineNumber,
 			currentLine,
 			action,
@@ -303,7 +300,7 @@ const handleBlockActions = async ({ access_token, abslackt, payload }) => {
 			playId,
 			cast,
 			conversation,
-		})
+		}).catch(console.error)
 	}
 
 	// For modals, we need to know the next line because reasons
@@ -312,7 +309,7 @@ const handleBlockActions = async ({ access_token, abslackt, payload }) => {
 		const homepageUrl = `slack://app?team=${payload.team.id}&id=${payload.api_app_id}&tab=home`
 		const nextLineNumber = currentLineNumber + 1
 		const nextLine = transcript[nextLineNumber]
-		console.debug(`🦄 Type: Modal. Next line number: ${nextLineNumber}`)
+		console.debug(`💥 Type: Modal. Next line number: ${nextLineNumber}`)
 
 		// @todo handle the end of the play if appropriate.
 		if (!nextLine) {
@@ -356,12 +353,12 @@ exports.handler = async (request) => {
 	const payload = JSON.parse(request.body)
 	const { type, team, team_id } = payload
 
-	console.debug(`🦄 Event type: ${type}`)
+	console.debug(`🐬 Event type: ${type}`)
 
 	// If the event type is 'cue_next_message', expect all the required details to be in the body payload.
 	// This is meant to speed up the app logic, for better performance.
 	if (type === 'cue_next_message') {
-		cueNextMessage({ payload }).catch(console.error)
+		await cueNextMessage({ payload }).catch(console.error)
 		return {
 			statusCode: 200,
 			body: '',

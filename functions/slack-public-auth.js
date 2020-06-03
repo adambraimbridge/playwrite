@@ -5,7 +5,7 @@ const NetlifyAPI = require('netlify')
 // @see https://api.slack.com/authentication/oauth-v2
 // @see https://slack.dev/node-slack-sdk/web-api#exchange-an-oauth-grant-for-a-token
 exports.handler = async (request) => {
-	console.debug(`🦄 Slack app auth`)
+	console.debug(`🕶 Slack app auth`)
 	const netlifyClient = new NetlifyAPI(NETLIFY_AUTH_TOKEN)
 	const { code } = request.queryStringParameters
 	const slackWebClient = new WebClient()
@@ -30,14 +30,14 @@ exports.handler = async (request) => {
 	}
 	const { id: team_id } = oauthResponse.team
 
-	console.debug(`🦄 Getting netlify site metadata ...`)
+	console.debug(`🕶 Getting netlify site metadata ...`)
 	const siteMetaData = await netlifyClient //
 		.getSiteMetadata({
 			site_id: NETLIFY_PLAYWRITE_SITE_ID,
 		})
 	siteMetaData[team_id] = oauthResponse
 
-	console.debug(`🦄 Updating netlify site metadata ...`)
+	console.debug(`🕶 Updating netlify site metadata ...`)
 	const response = await netlifyClient
 		.updateSiteMetadata({
 			site_id: NETLIFY_PLAYWRITE_SITE_ID,

@@ -26,7 +26,6 @@ exports.handler = async (request) => {
 			response.body = challenge
 		} else {
 			const path = '/.netlify/functions/director'
-			// console.debug(`🦄 Action! Cue ${SITE_HOST}${path}`)
 			await axios
 				.post(`${SITE_HOST}${path}`, payload, {
 					headers: {

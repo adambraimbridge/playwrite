@@ -93,7 +93,7 @@ exports.handler = async (request) => {
 		playNextMessage,
 	} = bodyPayload
 
-	console.debug(`🦄 Sending message. Line #${currentLineNumber}.`)
+	console.debug(`🍕 Sending message. Line #${currentLineNumber}.`)
 	await sendMessage({
 		access_token, //
 		conversation,
@@ -106,7 +106,7 @@ exports.handler = async (request) => {
 	// Automatically pause when given options to choose from.
 	// This allows the user to interact.
 	if (message.options) {
-		console.debug(`🦄 Pausing to let the user select an option ...`)
+		console.debug(`🍕 Pausing to let the user select an option ...`)
 	} else if (!!playNextMessage) {
 		const payload = {
 			type: 'cue_next_message', //
@@ -117,7 +117,7 @@ exports.handler = async (request) => {
 			currentLineNumber,
 		}
 
-		console.debug(`🦄 Calling the Director to cue the next line (#${currentLineNumber})`)
+		console.debug(`🍕 Calling ${SITE_HOST}/.netlify/functions/director to cue line #${currentLineNumber + 1}`)
 		const response = await axios
 			.post(`${SITE_HOST}/.netlify/functions/director`, payload, {
 				headers: {
@@ -125,7 +125,7 @@ exports.handler = async (request) => {
 				},
 			})
 			.catch(console.error)
-		console.log(response.status)
+		console.log(`🍕 Line #${currentLineNumber + 1}: ${response.status}`)
 	}
 
 	return {

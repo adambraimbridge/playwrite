@@ -1,6 +1,6 @@
 // @see https://api.slack.com/docs/conversations-api
 const getConversation = async ({ slackWebClient, name, playerId }) => {
-	console.debug(`🦄 Searching for conversation #${name} ... `)
+	console.debug(`💁‍♀️ Searching for conversation #${name} ... `)
 	let conversation
 	const userConversations = await slackWebClient.users //
 		.conversations({
@@ -18,7 +18,7 @@ const getConversation = async ({ slackWebClient, name, playerId }) => {
 		})
 
 	if (!conversation) {
-		console.debug('🦄 Slack conversation channel not found. This is fine.')
+		console.debug('💁‍♀️ Slack conversation channel not found. This is fine.')
 		return false
 	}
 
@@ -33,7 +33,7 @@ const getConversation = async ({ slackWebClient, name, playerId }) => {
 }
 
 const createConversation = async ({ slackWebClient, name, playerId }) => {
-	console.debug(`🦄 Creating conversation #${name} ... `)
+	console.debug(`💁‍♀️ Creating conversation #${name} ... `)
 	const result = await slackWebClient.conversations //
 		.create({
 			name,
@@ -61,7 +61,7 @@ const createConversation = async ({ slackWebClient, name, playerId }) => {
 
 // @todo Check that the conversation hasn't been deleted/archived/abandoned ..?
 const inviteUser = async ({ slackWebClient, channel, users }) => {
-	console.debug(`🦄 Inviting user #${users} to the conversation`)
+	console.debug(`💁‍♀️ Inviting user #${users} to the conversation`)
 	await slackWebClient.conversations //
 		.invite({
 			channel,
@@ -74,7 +74,7 @@ const inviteUser = async ({ slackWebClient, channel, users }) => {
 // And it's not possible to delete 100% of messages from a conversation.
 // So yeeting === rename then archive channel.
 const yeetConversation = async ({ slackWebClient, name, id }) => {
-	console.debug(`🦄 Yeeting conversation ${id} ... `)
+	console.debug(`💁‍♀️ Yeeting conversation ${id} ... `)
 	await slackWebClient.conversations //
 		.rename({
 			channel: id,
