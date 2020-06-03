@@ -3,6 +3,10 @@ const { getAbslackt } = require('./lib/abslackt')
 const { NETLIFY_DEV, PLAYWRITE_API_KEY } = process.env
 const SITE_HOST = NETLIFY_DEV === 'true' ? 'https://playwrite.ngrok.io' : 'https://playwrite.netlify.app'
 
+const delay = (milliseconds) => {
+	return new Promise((resolve) => setTimeout(() => resolve(), milliseconds))
+}
+
 const sendMessage = async ({ access_token, conversation, cast, message, playId, currentLineNumber }) => {
 	const messageStub = {
 		channel: conversation.id,
@@ -93,6 +97,11 @@ exports.handler = async (request) => {
 		playNextMessage,
 	} = bodyPayload
 
+	// Delay slightly between posting messages (to simulate the real-life instant-messaging experience)
+	const milliseconds = 500 + message.text.length * 5
+	console.debug(`🍕 Delaying ${milliseconds} milliseconds before sending message ...`)
+	await delay(milliseconds)
+
 	console.debug(`🍕 Sending message. Line #${currentLineNumber}.`)
 	await sendMessage({
 		access_token, //
@@ -101,7 +110,7 @@ exports.handler = async (request) => {
 		message,
 		playId,
 		currentLineNumber,
-	})
+	}).catch(console.error)
 
 	// Automatically pause when given options to choose from.
 	// This allows the user to interact.
@@ -125,7 +134,7 @@ exports.handler = async (request) => {
 				},
 			})
 			.catch(console.error)
-		console.log(`🍕 Line #${currentLineNumber + 1}: ${response.status}`)
+		console.debug(`🍕 Line #${currentLineNumber + 1}: ${response.status}`)
 	}
 
 	return {
