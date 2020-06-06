@@ -1,6 +1,7 @@
+const querystring = require('querystring')
 const { WebClient } = require('@slack/web-api')
 const { getUser } = require('./users')
-const { postMessage } = require('./messages')
+const { postMessage, updateMessage } = require('./messages')
 const { spawnModal, updateModal } = require('./modals')
 const { getConversation, createConversation, yeetConversation } = require('./conversations')
 
@@ -17,7 +18,7 @@ const getPayload = ({ body }) => {
 		payload = json.payload || json
 	} catch (error) {
 		// Slack "Interactions"
-		payload = JSON.parse(decodeURIComponent(body).replace('payload=', ''))
+		payload = JSON.parse(querystring.parse(body).payload)
 	}
 	return payload
 }
@@ -34,6 +35,7 @@ const getAbslackt = ({ access_token }) => {
 		spawnModal: (args) => spawnModal({ slackWebClient, ...args }),
 		updateModal: (args) => updateModal({ slackWebClient, ...args }),
 		postMessage: (args) => postMessage({ slackWebClient, ...args }),
+		updateMessage: (args) => updateMessage({ slackWebClient, ...args }),
 		getConversation: (args) => getConversation({ slackWebClient, ...args }),
 		createConversation: (args) => createConversation({ slackWebClient, ...args }),
 		yeetConversation: (args) => yeetConversation({ slackWebClient, ...args }),

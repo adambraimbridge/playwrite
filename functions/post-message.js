@@ -7,9 +7,9 @@ const delay = (milliseconds) => {
 	return new Promise((resolve) => setTimeout(() => resolve(), milliseconds))
 }
 
-const sendMessage = async ({ access_token, conversation, cast, message, playId, currentLineNumber }) => {
+const sendMessage = async ({ access_token, conversationId, cast, message, playId, currentLineNumber }) => {
 	const messageStub = {
-		channel: conversation.id,
+		channel: conversationId,
 		link_names: true,
 	}
 
@@ -49,6 +49,7 @@ const sendMessage = async ({ access_token, conversation, cast, message, playId, 
 		const elements = options.map((option, index) => {
 			const { text } = option
 			const value = JSON.stringify({
+				conversationId,
 				currentLineNumber,
 				optionNumber: index,
 			})
@@ -90,7 +91,7 @@ exports.handler = async (request) => {
 	const {
 		access_token, //
 		currentLineNumber,
-		conversation,
+		conversationId,
 		cast,
 		message,
 		playId,
@@ -98,14 +99,15 @@ exports.handler = async (request) => {
 	} = bodyPayload
 
 	// Delay slightly between posting messages (to simulate the real-life instant-messaging experience)
-	const milliseconds = 500 + message.text.length * 5
+	// const milliseconds = 500 + message.text.length * 5
+	const milliseconds = 1000
 	console.debug(`🍕 Delaying ${milliseconds} milliseconds before sending message ...`)
 	await delay(milliseconds)
 
 	console.debug(`🍕 Sending message. Line #${currentLineNumber}.`)
-	await sendMessage({
+	sendMessage({
 		access_token, //
-		conversation,
+		conversationId,
 		cast,
 		message,
 		playId,
@@ -120,21 +122,20 @@ exports.handler = async (request) => {
 		const payload = {
 			type: 'cue_next_message', //
 			access_token,
-			conversation,
+			conversationId,
 			cast,
 			playId,
 			currentLineNumber,
 		}
 
 		console.debug(`🍕 Calling ${SITE_HOST}/.netlify/functions/director to cue line #${currentLineNumber + 1}`)
-		const response = await axios
+		axios
 			.post(`${SITE_HOST}/.netlify/functions/director`, payload, {
 				headers: {
 					'x-playwrite-api-key': process.env.PLAYWRITE_API_KEY,
 				},
 			})
 			.catch(console.error)
-		console.debug(`🍕 Line #${currentLineNumber + 1}: ${response.status}`)
 	}
 
 	return {

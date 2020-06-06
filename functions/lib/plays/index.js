@@ -20,7 +20,7 @@ const getPlayBlocks = async ({ abslackt, user_id }) => {
 			playerId: user_id,
 		})
 		if (!!existing) {
-			conversation = existing.conversation
+			const { conversation } = existing
 			elements.push(
 				{
 					type: 'button',

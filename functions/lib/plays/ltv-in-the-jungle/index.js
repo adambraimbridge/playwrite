@@ -5,9 +5,9 @@ const play = {
 	},
 	id: 'ltv-in-the-jungle',
 	title: 'LTV in the Jungle',
-	description: '🚧 `PRE-ALPHA DEMO` A fast-paced action adventure pitting you against the wild.',
-	score: '★★★★☆',
-	duration: 'Less than five minutes',
+	description: `A fast-paced action adventure pitting you against the wild.`,
+	score: '★★★★☆  |  🚧 `PRE-ALPHA DEMO`',
+	duration: 'About five minutes',
 }
 
 play.cast = {
@@ -37,16 +37,17 @@ play.getTranscript = ({ player }) => [
 	{
 		type: 'modal',
 		from: 'natalie-narrator',
-		image_url: 'http://placekitten.com/700/500',
+		image_url: 'http://placekitten.com/700/400',
 		alt_text: 'In this drama you play the part of a kitten.',
 		text: `The curtain rises.
+
 
 You find yourself starting yet another day of work.`,
 	},
 	{
 		type: 'modal',
 		from: 'natalie-narrator',
-		image_url: 'http://placekitten.com/700/300',
+		image_url: 'http://placekitten.com/700/350',
 		alt_text: `Your character's primary motivation is: Kitten.`,
 		text: `You've recently been placed in charge of managing a portfolio of clients who pay a subscription to access online content.`,
 	},
@@ -55,7 +56,11 @@ You find yourself starting yet another day of work.`,
 		from: 'natalie-narrator',
 		image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/20100605_Harry_Malter_%280062%29.jpg/800px-20100605_Harry_Malter_%280062%29.jpg',
 		alt_text: `This season, the part of Ellie Elephant is played by Suzie (https://commons.wikimedia.org/wiki/Category:Suzy_(elephant))`,
-		text: `Your day begins with a startling missive from your boss, Ellie Elephant ...`,
+		text: `Your day begins with a *Slack Message* from your boss, Ellie Elephant ...
+
+
+
+💡_In a few seconds you'll need to check for new messages in Slack._`,
 	},
 	{
 		type: 'message',
@@ -107,13 +112,11 @@ Ah yes, of course. Well done.`,
 	{
 		type: 'message',
 		from: 'natalie-narrator',
-		text: `But why would Ellie want you to make a plan to increase LTV? And how would you even start? What changes can you make?
+		text: `But why would Ellie want you to make a plan to increase LTV?
 
-Anxiety grows. Pulse quickens. You feel your resolve weaken as you reach for the bottle of vodka under your desk ...
+And how would you even start? What changes can you make?
 
-Suddenly you snatch back your empty hand. "No", you think. Not again.
-
-_Never again._
+Anxiety grows. Your pulse quickens.
 
 And then you remember! Of course, that's it!
 
@@ -222,11 +225,11 @@ One sec ...`,
 			},
 			{
 				playNextMessage: true,
-				text: `Awesoem, thanks Vicky.`,
+				text: `Awesome, thanks Vicky.`,
 				response: {
 					type: 'message',
 					from: 'vicky-vole',
-					text: `✅ \`Awesoem\` No problem. we're here for a good time, not a long time :hugging_face:`,
+					text: `✅ \`Awesome\` No problem. we're here for a good time, not a long time :hugging_face:`,
 				},
 			},
 		],
@@ -323,7 +326,7 @@ Okay, think. Off the top of your head, there's two options: `,
 		from: 'natalie-narrator',
 		text: `
 
-...ah.
+... ah.
 
 Of course, it's never as simple as you think.
 
@@ -391,25 +394,30 @@ Ellie Elephant has run out of patience. She is _absolutely furious!_`,
 
 I hope you're doing well. Just chasing up on that LTV plan.
 
-No rush, but how's it going?`,
+No rush ... but how's it going?`,
 	},
 	{
 		type: 'message',
 		from: 'natalie-narrator',
 		image_url: 'https://media.giphy.com/media/KINAUcarXNxWE/200w_d.gif',
 		alt_text: ` ~ fin. ~`,
-		text: `
-
-
-
-
-
-		To be continued ...`,
+		text: `To be continued ...`,
+		options: [
+			{
+				playNextMessage: true,
+				text: `Is that it?`,
+				response: {
+					type: 'message',
+					from: 'natalie-narrator',
+					text: `Yeah, that's it so far.`,
+				},
+			},
+		],
 	},
 	{
 		type: 'message',
-		from: 'player',
-		text: `Hi ${player.real_name}, This is Adam here. I'm programming this game.`,
+		from: 'natalie-narrator',
+		text: `👋 Hi, ${player.real_name}. This is Adam here. I'm still working on programming this game.`,
 		options: [
 			{
 				text: `😢 This is where I get stuck.`,
@@ -443,12 +451,12 @@ No rush, but how's it going?`,
 		from: 'player',
 		text: `TO DO:
 
- • Demo this to the analytics team and if they like it, they'll know what to do.
- • The player has to pick some kind of LTV plan.
- • Once they do, they'll get a summary of what they just learned.
- • Maybe they'll get a score, or some gold stars.
- • In version 1.1, there'll be a feedback prompt with :thumbsup: :thumbsdown:  or similar.
- • Next up, we can make more little games to explore how LTV relates to 'Attribution' and 'Sensitivity'.`,
+- Demo this to the data science & analytics teams and see if they like it.
+- The player has to pick some kind of LTV plan.
+  - Once they do, they'll get a summary of what they just learned.
+  - Maybe they'll get a score, or some gold stars.
+- In version 1.1, there'll be a feedback prompt with :thumbsup: :thumbsdown:  or similar.
+- Next up, we can make more little games to explore how LTV relates to 'Attribution' and 'Sensitivity'.`,
 	},
 ]
 
