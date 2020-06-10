@@ -64,36 +64,28 @@ const getPlayBlocks = async ({ abslackt, user_id }) => {
 			},
 		})
 
-		accumulator.push({
-			type: 'context',
-			elements: [
-				{
-					type: 'mrkdwn',
-					text: `_${duration}_  |  ${score}`,
-				},
-			],
-		})
-
-		// if (!!author) {
-		// 	const { profile } = await abslackt.getUser({ user: author })
-		// 	const { real_name, image_512: image_url } = profile
-		// 	if (!!real_name && !!image_url) {
-		// 		accumulator.push({
-		// 			type: 'context',
-		// 			elements: [
-		// 				{
-		// 					type: 'image',
-		// 					image_url,
-		// 					alt_text: real_name,
-		// 				},
-		// 				{
-		// 					type: 'mrkdwn',
-		// 					text: `*${real_name}*  |  _${duration}_  |  ${score}`,
-		// 				},
-		// 			],
-		// 		})
-		// 	}
-		// }
+		if (!!author) {
+			const { real_name, icon_emoji } = author
+			accumulator.push({
+				type: 'context',
+				elements: [
+					{
+						type: 'mrkdwn',
+						text: `${icon_emoji} *${real_name}*  |  _${duration}_  |  ${score}`,
+					},
+				],
+			})
+		} else {
+			accumulator.push({
+				type: 'context',
+				elements: [
+					{
+						type: 'mrkdwn',
+						text: `_${duration}_  |  ${score}`,
+					},
+				],
+			})
+		}
 
 		accumulator.push(
 			{
