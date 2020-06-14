@@ -250,7 +250,6 @@ const cueNextMessage = async ({ payload }) => {
 const handleBlockActions = async ({ access_token, abslackt, payload }) => {
 	// We use the Slack block's "action" value to store the current line number.
 	const selectedAction = payload.actions[0]
-	const actionValue = JSON.parse(selectedAction.value)
 	const { action_id: action, block_id: playId, value } = selectedAction
 	console.debug(`💥 Action = ${action}`)
 
@@ -322,9 +321,17 @@ const handleBlockActions = async ({ access_token, abslackt, payload }) => {
 		cast.player = player
 	}
 
-	const currentLineNumber = actionValue.currentLineNumber || 0
+	const actionValue = {
+		currentLineNumber: 0,
+	}
+	try {
+		const parsed = JSON.parse(selectedAction.value)
+		if (parsed.currentLineNumber) {
+			actionValue.currentLineNumber = parsed.currentLineNumber
+		}
+	} catch (error) {}
 	const transcript = getTranscript({ player })
-	const currentLine = transcript[currentLineNumber]
+	const currentLine = transcript[actionValue.currentLineNumber]
 	if (!currentLine) {
 		throw new Error(`🤔 Could not find line #${currentLineNumber} in ${playId}`)
 	}
