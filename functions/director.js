@@ -22,7 +22,7 @@ const disableSelectedOption = ({ abslackt, payload }) => {
 	console.debug(`🐼 Updating message to disable the selected option`)
 	const {
 		text: actionText,
-		action_id: selectedActionId, //
+		action_id: actionStateId, //
 		block_id: selectedBlockId,
 	} = payload.actions[0]
 
@@ -30,7 +30,7 @@ const disableSelectedOption = ({ abslackt, payload }) => {
 	const newBlocks = blocks.reduce((accumulator, block) => {
 		if (block.block_id === selectedBlockId) {
 			// Remove the button that was clicked. There's no way to have a "disabled" button in a Slack message.
-			const newElements = block.elements.filter(({ action_id }) => action_id !== selectedActionId)
+			const newElements = block.elements.filter(({ action_id }) => action_id !== actionStateId)
 			if (newElements.length) {
 				accumulator.push(Object.assign({}, block, { elements: newElements }))
 			}
@@ -179,7 +179,7 @@ const deliverModal = async ({ abslackt, view_id, view, playId, currentLine, next
 		.catch(console.error)
 }
 
-const postMessage = async ({ currentLineNumber, currentLine, action, actionValue, access_token, playId, cast, conversationId }) => {
+const postMessage = async ({ currentLineNumber, currentLine, action, state, access_token, playId, cast, conversationId }) => {
 	console.debug(`💌 Type: Message.`)
 	let message = currentLine
 	let playNextMessage = true
@@ -189,7 +189,7 @@ const postMessage = async ({ currentLineNumber, currentLine, action, actionValue
 	//  2. Then send the appropriate response message to the conversation channel.
 	//     @todo handle responses that are modals
 	if (!!action && action.includes('option-')) {
-		const { optionNumber } = actionValue
+		const { optionNumber } = state
 		const selectedOption = currentLine.options[optionNumber]
 		message = selectedOption.response
 		playNextMessage = !!selectedOption.playNextMessage // This will "pause" the play unless `playNextMessage` is explicitly set to `true`
@@ -248,9 +248,14 @@ const cueNextMessage = async ({ payload }) => {
 }
 
 const handleBlockActions = async ({ access_token, abslackt, payload }) => {
-	// We use the Slack block's "action" value to store the current line number.
-	const selectedAction = payload.actions[0]
-	const { action_id: action, block_id: playId, value } = selectedAction
+	// We use the Slack block's "action" value to store the current state.
+	const actionState = payload.actions[0]
+	const {
+		action_id: action, //
+		block_id: playId,
+		value,
+	} = actionState
+
 	console.debug(`💥 Action = ${action}`)
 
 	// @todo refactor this dupe
@@ -260,6 +265,7 @@ const handleBlockActions = async ({ access_token, abslackt, payload }) => {
 		return false
 	}
 
+	// @todo look for user (or conversationName) in actionState
 	const user = await abslackt.getUser({ user: payload.user.id }).catch(console.error)
 	const { id: playerId } = user
 	const conversationName = `${playId}-${playerId}`.toLowerCase()
@@ -286,9 +292,9 @@ const handleBlockActions = async ({ access_token, abslackt, payload }) => {
 		return false
 	}
 
-	// @todo Update the message to disable the selected action once it's "used up".
+	// Update the message to disable the selected action once it's "used up".
 	if (action.includes('option-')) {
-		console.debug(`💥 ${action} = ${selectedAction.text.text}`)
+		console.debug(`💥 ${action} = ${actionState.text.text}`)
 		disableSelectedOption({ abslackt, payload })
 	}
 
@@ -321,36 +327,35 @@ const handleBlockActions = async ({ access_token, abslackt, payload }) => {
 		cast.player = player
 	}
 
-	const actionValue = {
+	const state = {
 		currentLineNumber: 0,
 	}
 	try {
-		const parsed = JSON.parse(selectedAction.value)
+		const parsed = JSON.parse(actionState.value)
 		if (parsed.currentLineNumber) {
-			actionValue.currentLineNumber = parsed.currentLineNumber
+			state.currentLineNumber = parsed.currentLineNumber
 		}
 	} catch (error) {}
 	const transcript = getTranscript({ player })
-	const currentLine = transcript[actionValue.currentLineNumber]
+	const currentLine = transcript[state.currentLineNumber]
 	if (!currentLine) {
-		throw new Error(`🤔 Could not find line #${currentLineNumber} in ${playId}`)
+		throw new Error(`🤔 Could not find line #${state.currentLineNumber} in ${playId}`)
 	}
 	const { type } = currentLine
 
 	// Store the conversation ID in the action value too
 	if (type === 'message') {
 		const messageData = {
-			currentLineNumber,
 			currentLine,
 			action,
-			actionValue,
+			state,
 			access_token,
 			playId,
 			cast,
 		}
 
-		if (actionValue.conversationId) {
-			messageData.conversationId = actionValue.conversationId
+		if (state.conversationId) {
+			messageData.conversationId = state.conversationId
 		} else {
 			const { conversation } = await getConversation({
 				abslackt,
@@ -367,7 +372,7 @@ const handleBlockActions = async ({ access_token, abslackt, payload }) => {
 	// @todo I forgot the reasons
 	if (type === 'modal') {
 		const homepageUrl = `slack://app?team=${payload.team.id}&id=${payload.api_app_id}&tab=home`
-		const nextLineNumber = currentLineNumber + 1
+		const nextLineNumber = state.currentLineNumber + 1
 		const nextLine = transcript[nextLineNumber]
 		console.debug(`💥 Type: Modal. Next line number: ${nextLineNumber}`)
 
@@ -411,7 +416,11 @@ exports.handler = async (request) => {
 	}
 
 	const payload = JSON.parse(request.body)
-	const { type, team, team_id } = payload
+	const {
+		type, //
+		team,
+		team_id,
+	} = payload
 
 	console.debug(`🐬 Event type: ${type}`)
 
