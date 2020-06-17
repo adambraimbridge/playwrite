@@ -1,3 +1,6 @@
+const { getPlay } = require('./plays')
+const { getConversation } = require('./get-conversation')
+
 const handleBlockActions = async ({ access_token, abslackt, payload }) => {
 	// We use the Slack block's "action" value to store the current state.
 	const actionState = payload.actions[0]
@@ -55,17 +58,7 @@ const handleBlockActions = async ({ access_token, abslackt, payload }) => {
 		return false
 	}
 
-	// `trigger_id` must be used within 500ms. in this case, it is needed to spawn a modal view.
-	// The subsequent view id can thereafter be used for modal updates (within a few hours)
-	const view =
-		action === 'play'
-			? await getModal({
-					abslackt,
-					trigger_id: payload.trigger_id,
-			  })
-			: payload.view
-
-	const { title, cast, getTranscript } = nowShowing
+	const { cast } = nowShowing
 
 	// Let the player join the cast
 	// @todo figure out how to display the player's avatar
@@ -87,6 +80,8 @@ const handleBlockActions = async ({ access_token, abslackt, payload }) => {
 			state.currentLineNumber = parsed.currentLineNumber
 		}
 	} catch (error) {}
+
+	const { getTranscript } = nowShowing
 	const transcript = getTranscript({ player })
 	const currentLine = transcript[state.currentLineNumber]
 	if (!currentLine) {
@@ -117,39 +112,6 @@ const handleBlockActions = async ({ access_token, abslackt, payload }) => {
 		}
 
 		await postMessage(messageData).catch(console.error)
-	}
-
-	// For modals, we need to know the next line because reasons
-	// @todo I forgot the reasons
-	if (type === 'modal') {
-		const homepageUrl = `slack://app?team=${payload.team.id}&id=${payload.api_app_id}&tab=home`
-		const nextLineNumber = state.currentLineNumber + 1
-		const nextLine = transcript[nextLineNumber]
-		console.debug(`💥 Type: Modal. Next line number: ${nextLineNumber}`)
-
-		// @todo handle the end of the play if appropriate.
-		if (!nextLine) {
-			console.warn('🐶 Next line not found.')
-		}
-
-		await deliverModal({
-			abslackt,
-			view_id: view.id,
-			view: {
-				type: 'modal',
-				title: {
-					type: 'plain_text',
-					text: title,
-					emoji: true,
-				},
-				callback_id: view.callback_id,
-			},
-			playId,
-			currentLine,
-			nextLine,
-			nextLineNumber,
-			homepageUrl,
-		})
 	}
 }
 

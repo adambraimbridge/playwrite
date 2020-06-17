@@ -35,7 +35,7 @@ play.cast = {
  */
 play.getTranscript = ({ player }) => [
 	{
-		type: 'modal',
+		type: 'message',
 		from: 'natalie-narrator',
 		image_url: 'http://placekitten.com/700/400',
 		alt_text: 'In this drama you play the part of a kitten.',
@@ -45,14 +45,14 @@ play.getTranscript = ({ player }) => [
 You find yourself starting yet another day of work.`,
 	},
 	{
-		type: 'modal',
+		type: 'message',
 		from: 'natalie-narrator',
 		image_url: 'http://placekitten.com/700/350',
 		alt_text: `Your character's primary motivation is: Kitten.`,
 		text: `You've recently been placed in charge of managing a portfolio of clients who pay a subscription to access online content.`,
 	},
 	{
-		type: 'modal',
+		type: 'message',
 		from: 'natalie-narrator',
 		image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/20100605_Harry_Malter_%280062%29.jpg/800px-20100605_Harry_Malter_%280062%29.jpg',
 		alt_text: `This season, the part of Ellie Elephant is played by Suzie (https://commons.wikimedia.org/wiki/Category:Suzy_(elephant))`,

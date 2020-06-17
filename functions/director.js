@@ -1,12 +1,9 @@
 const NetlifyAPI = require('netlify')
 const { getAbslackt } = require('./lib/abslackt')
-
-const {
-	updateHomepage, //
-	cueNextMessage,
-	handleBlockActions,
-	handleViewSubmissions,
-} = require('./lib')
+const { updateHomepage } = require('./lib/update-homepage')
+const { cueNextMessage } = require('./lib/cue-next-message')
+const { handleBlockActions } = require('./lib/handle-block-actions')
+const { handleViewSubmissions } = require('./lib/handle-view-submissions')
 
 const {
 	PLAYWRITE_API_KEY, //
