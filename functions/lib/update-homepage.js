@@ -1,7 +1,12 @@
-const updateHomepage = async ({ abslackt, user_id }) => {
+const { getAbslackt } = require('./abslackt')
+const { getPlayBlocks } = require('./plays')
+const { getRandomTagline } = require('./branding')
+
+const updateHomepage = async ({ access_token, user_id }) => {
 	console.debug(`🏡 Updating homepage for user #${user_id}`)
 
-	const blocks = await getPlayBlocks({ abslackt, user_id })
+	const abslackt = getAbslackt({ access_token })
+	const blocks = await getPlayBlocks({ access_token, user_id })
 	const randomTagline = getRandomTagline()
 	blocks.push({
 		type: 'context',

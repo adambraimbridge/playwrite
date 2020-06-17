@@ -1,4 +1,16 @@
-const postMessage = async ({ currentLineNumber, currentLine, action, state, access_token, playId, cast, conversationId }) => {
+const axios = require('axios')
+const SITE_HOST = process.env.NETLIFY_DEV === 'true' ? 'https://playwrite.ngrok.io' : 'https://playwrite.netlify.app'
+
+const postMessage = async ({
+	currentLineNumber, //
+	currentLine,
+	action,
+	state,
+	access_token,
+	playId,
+	cast,
+	conversationId,
+}) => {
 	console.debug(`💌 Type: Message.`)
 	let message = currentLine
 	let playNextMessage = true
